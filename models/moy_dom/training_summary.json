@@ -1,0 +1,20 @@
+{
+  "project": "Enhanced Russian Wake-Word 'мой дом'",
+  "status": "Ready for training",
+  "improvements": [
+    "Multiple Russian voices (Denis, Dmitri)",
+    "Extended positive samples (1000+ expected)",
+    "Comprehensive negative samples (500+ expected)",
+    "Advanced audio augmentation",
+    "Improved model parameters",
+    "Enhanced ESPHome configuration",
+    "Better monitoring and logging"
+  ],
+  "next_steps": [
+    "Run enhanced sample generation",
+    "Execute training with improved config",
+    "Test model performance",
+    "Deploy to ESP32-S3",
+    "Monitor false positive/negative rates"
+  ]
+}

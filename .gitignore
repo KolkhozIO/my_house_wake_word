@@ -42,11 +42,12 @@ Thumbs.db
 *.mp3
 *.flac
 
-# Model files
+# Model files (except our trained models)
 *.onnx
-*.tflite
-*.h5
-*.weights
+# Allow our trained models
+!models/trained_model/*.tflite
+!models/trained_model/*.h5
+!models/microwakeword_model/*.tflite
 
 # Data directories (large audio files)
 positives_moy_dom/
@@ -59,11 +60,12 @@ negatives_moy_dom_enhanced/
 negatives_moy_dom_enhanced_aug/
 voices/
 
-# Keep model configs but ignore large model files
-models/*/
+# Keep all model configs and trained models
 !models/**/*.json
 !models/**/*.yaml
 !models/**/*.md
+!models/**/*.tflite
+!models/**/*.h5
 
 # Logs
 *.log

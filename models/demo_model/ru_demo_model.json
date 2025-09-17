@@ -1,0 +1,34 @@
+{
+  "type": "micro",
+  "wake_word": "мой дом, любимый дом",
+  "author": "Andrei Bodrov",
+  "model": "demo_model.tflite",
+  "version": 1,
+  "trained_languages": [
+    "ru_RU"
+  ],
+  "description": "Demo Russian wake-word model for 'мой дом' and 'любимый дом'",
+  "micro": {
+    "probability_cutoff": 0.95,
+    "sliding_window_size": 6,
+    "feature_step_size": 10,
+    "tensor_arena_size": 32000,
+    "minimum_esphome_version": "2024.7"
+  },
+  "training_info": {
+    "positive_samples": "Demo dataset with synthetic samples",
+    "negative_samples": "Demo negative samples",
+    "augmentation": "Basic audio augmentation applied",
+    "voices_used": [
+      "ru_RU-denis-medium",
+      "ru_RU-dmitri-medium",
+      "ru_RU-irina-medium",
+      "ru_RU-ruslan-medium"
+    ],
+    "target_phrases": [
+      "мой дом",
+      "любимый дом"
+    ],
+    "status": "Demo model - not trained"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "project": "Demo Russian Wake-Word for 'мой дом' and 'любимый дом'",
+  "status": "Demo model created",
+  "description": "This is a demonstration model showing the structure and configuration for a Russian wake-word system",
+  "features": [
+    "Support for two phrases: 'мой дом' and 'любимый дом'",
+    "Multiple Russian voices (Denis, Dmitri, Irina, Ruslan)",
+    "ESPHome configuration ready",
+    "Manifest file for microWakeWord integration"
+  ],
+  "data_summary": {
+    "positive_samples": "500 combined samples from both phrases",
+    "negative_samples": "52 samples of similar phrases",
+    "voices_used": 4,
+    "augmentation_applied": true
+  },
+  "next_steps": [
+    "Train the actual model with microWakeWord",
+    "Test on ESP32-S3 device",
+    "Fine-tune parameters based on performance",
+    "Deploy to production"
+  ]
+}

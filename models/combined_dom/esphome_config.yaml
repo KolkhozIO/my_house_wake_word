@@ -1,0 +1,70 @@
+
+# Конфигурация ESPHome для wake-word "мой дом" и "любимый дом"
+
+esphome:
+  name: combined-dom-wake-word
+  platform: ESP32
+  board: esp32-s3-devkitc-1
+
+wifi:
+  ssid: "your_wifi_ssid"
+  password: "your_wifi_password"
+
+api:
+ota:
+
+logger:
+  level: INFO
+
+# Микрофон с улучшенными настройками
+i2s_audio:
+  i2s_din_pin: GPIO35
+  i2s_bclk_pin: GPIO36
+  i2s_lrclk_pin: GPIO37
+
+microphone:
+  - platform: i2s_audio
+    id: my_mic
+    adc_type: external
+    i2s_audio: i2s_audio
+
+# Micro Wake Word с параметрами для двух фраз
+micro_wake_word:
+  microphone:
+    microphone: my_mic
+    channels: 0
+    gain_factor: 6  # Увеличиваем усиление
+  vad:
+    model: github://esphome/micro-wake-word-models/models/v2/vad.json@main
+  models:
+    - model: https://your-host/ru_combined_dom.json
+      id: combined_dom
+      probability_cutoff: 0.95  # Переопределяем порог
+      sliding_window_size: 6    # Переопределяем размер окна
+
+wake_word:
+  on_wake_word_detected:
+    then:
+      - logger.log:
+          format: "Wake word detected: %s (confidence: %.2f)"
+          args: [ 'wake_word.c_str()', 'wake_word.confidence' ]
+      - homeassistant.service:
+          service: notify.persistent_notification
+          data:
+            title: "Wake Word Detected"
+            message: "мой дом или любимый дом"
+      - delay: 1s
+      - logger.log: "Wake word processing completed"
+
+# Дополнительные компоненты для мониторинга
+sensor:
+  - platform: wifi_signal
+    name: "WiFi Signal"
+    update_interval: 60s
+
+  - platform: uptime
+    name: "Uptime"
+
+# Статус светодиод
+status_led:
+  pin: GPIO2
