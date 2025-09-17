@@ -1,11 +1,18 @@
 {
-  "version": "1",
-  "model_name": "ru_trained_model",
-  "language": "ru",
-  "wake_words": [
-    "мой дом",
-    "любимый дом"
-  ],
+  "type": "micro",
+  "version": 2,
+  "wake_word": "мой дом / любимый дом",
+  "author": "KolkhozIO",
+  "website": "https://github.com/KolkhozIO/my_house_wake_word",
+  "model": "https://github.com/KolkhozIO/my_house_wake_word/raw/refs/heads/main/models/trained_model/wake_word_model.tflite",
+  "trained_languages": ["ru"],
+  "micro": {
+    "probability_cutoff": 0.85,
+    "feature_step_size": 10,
+    "sliding_window_size": 5,
+    "tensor_arena_size": 50000,
+    "minimum_esphome_version": "2024.7.0"
+  },
   "model_info": {
     "architecture": "CNN",
     "input_shape": [40, 49, 1],
@@ -33,30 +40,5 @@
     },
     "accuracy": "95%",
     "training_date": "2024-09-17"
-  },
-  "model": "https://github.com/KolkhozIO/my_house_wake_word/raw/refs/heads/main/models/trained_model/wake_word_model.tflite",
-  "files": {
-    "model_h5": "https://github.com/KolkhozIO/my_house_wake_word/raw/refs/heads/main/models/trained_model/wake_word_model.h5",
-    "readme": "README.md"
-  },
-  "deployment": {
-    "platform": "ESP32",
-    "component": "micro_wake_word",
-    "memory_usage": "~500KB",
-    "cpu_usage": "~15%"
-  },
-  "usage_instructions": {
-    "esphome": {
-      "1": "Copy wake_word_model.tflite to ESPHome config directory",
-      "2": "Use esphome_config.yaml as base configuration",
-      "3": "Update WiFi credentials and passwords",
-      "4": "Flash to ESP32 device",
-      "5": "Test wake word detection"
-    },
-    "testing": {
-      "1": "Say 'мой дом' or 'любимый дом' clearly",
-      "2": "Check binary_sensor.wake_word_detected state",
-      "3": "Monitor logs for detection events"
-    }
   }
 }
