@@ -1,0 +1,77 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Audio files (too large for git)
+*.wav
+*.mp3
+*.flac
+
+# Model files
+*.onnx
+*.tflite
+*.h5
+*.weights
+
+# Data directories (large audio files)
+positives_moy_dom/
+positives_moy_dom_aug/
+positives_moy_dom_enhanced/
+positives_moy_dom_enhanced_aug/
+negatives_moy_dom/
+negatives_moy_dom_aug/
+negatives_moy_dom_enhanced/
+negatives_moy_dom_enhanced_aug/
+voices/
+
+# Keep model configs but ignore large model files
+models/*/
+!models/**/*.json
+!models/**/*.yaml
+!models/**/*.md
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+
+# Test files
+test.yaml
