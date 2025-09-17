@@ -7,7 +7,7 @@
   "model": "https://raw.githubusercontent.com/KolkhozIO/my_house_wake_word/main/models/trained_model/wake_word_model.tflite",
   "trained_languages": ["ru"],
   "micro": {
-    "probability_cutoff": 0.85,
+    "probability_cutoff": 0.95,
     "feature_step_size": 10,
     "sliding_window_size": 5,
     "tensor_arena_size": 1000000,
