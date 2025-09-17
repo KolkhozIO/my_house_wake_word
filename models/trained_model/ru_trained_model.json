@@ -34,8 +34,8 @@
     "accuracy": "95%",
     "training_date": "2024-09-17"
   },
+  "model": "https://github.com/KolkhozIO/my_house_wake_word/raw/refs/heads/main/models/trained_model/wake_word_model.tflite",
   "files": {
-    "model": "https://github.com/KolkhozIO/my_house_wake_word/raw/refs/heads/main/models/trained_model/wake_word_model.tflite",
     "model_h5": "https://github.com/KolkhozIO/my_house_wake_word/raw/refs/heads/main/models/trained_model/wake_word_model.h5",
     "readme": "README.md"
   },
