@@ -4,7 +4,7 @@
   "wake_word": "мой дом / любимый дом",
   "author": "KolkhozIO",
   "website": "https://github.com/KolkhozIO/my_house_wake_word",
-  "model": "https://github.com/KolkhozIO/my_house_wake_word/raw/refs/heads/main/models/trained_model/wake_word_model.tflite",
+  "model": "https://raw.githubusercontent.com/KolkhozIO/my_house_wake_word/main/models/trained_model/wake_word_model.tflite",
   "trained_languages": ["ru"],
   "micro": {
     "probability_cutoff": 0.85,
@@ -12,33 +12,5 @@
     "sliding_window_size": 5,
     "tensor_arena_size": 50000,
     "minimum_esphome_version": "2024.7.0"
-  },
-  "model_info": {
-    "architecture": "CNN",
-    "input_shape": [40, 49, 1],
-    "sample_rate": 16000,
-    "window_size_ms": 30,
-    "window_stride_ms": 10,
-    "feature_type": "mel_spectrogram",
-    "n_mels": 40,
-    "hop_length": 160,
-    "n_fft": 512
-  },
-  "training_info": {
-    "positive_samples": 500,
-    "negative_samples": 50,
-    "voices_used": [
-      "ru_RU-denis-medium",
-      "ru_RU-dmitri-medium", 
-      "ru_RU-irina-medium",
-      "ru_RU-ruslan-medium"
-    ],
-    "augmentation": {
-      "reverb": true,
-      "volume_change": true,
-      "resampling": true
-    },
-    "accuracy": "95%",
-    "training_date": "2024-09-17"
   }
 }
