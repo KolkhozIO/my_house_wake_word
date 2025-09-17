@@ -4,7 +4,7 @@
   "wake_word": "мой дом / любимый дом",
   "author": "KolkhozIO",
   "website": "https://github.com/KolkhozIO/my_house_wake_word",
-  "model": "wake_word_model.tflite",
+  "model": "https://raw.githubusercontent.com/KolkhozIO/my_house_wake_word/main/models/trained_model/wake_word_model.tflite",
   "trained_languages": ["ru"],
   "micro": {
     "probability_cutoff": 0.85,
