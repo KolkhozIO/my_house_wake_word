@@ -4,7 +4,7 @@
   "wake_word": "\u043c\u043e\u0439 \u0434\u043e\u043c / \u043b\u044e\u0431\u0438\u043c\u044b\u0439 \u0434\u043e\u043c",
   "author": "KolkhozIO",
   "website": "https://github.com/KolkhozIO/my_house_wake_word",
-  "model": "models/trained_model/wake_word_model.tflite",
+  "model": "wake_word_model.tflite",
   "trained_languages": [
     "ru"
   ],
