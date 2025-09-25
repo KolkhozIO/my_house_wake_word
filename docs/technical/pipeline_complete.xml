@@ -1,0 +1,675 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pipeline_complete name="microWakeWord" date="2025-01-22" version="3.0">
+  
+  <!-- МЕТАИНФОРМАЦИЯ -->
+  <metadata>
+    <version>3.0</version>
+    <last_updated>2025-01-22</last_updated>
+    <status>OPTIMIZED_CLEANED_TEMPORARY_DATA</status>
+    <description>Полная техническая документация microWakeWord проекта</description>
+    <changes>
+      <change>Удалены временные данные: positives_both_aug_temp/ (859M), generated_features/, temp/</change>
+      <change>Обновлен список доступных задач в task_manager.py (19 задач)</change>
+      <change>Актуализированы размеры данных в /home/microWakeWord_data/</change>
+      <change>Обновлена структура проекта после оптимизации</change>
+      <change>Добавлены новые задачи: train_mixed_*, generate_negatives_spectrograms</change>
+      <change>Исправлены пути к данным и моделям</change>
+      <change>Объяснено происхождение данных в config/ (ESPHome build артефакты)</change>
+      <change>Объединена вся техническая документация в один файл</change>
+      <change>Удалены все пустые директории для очистки структуры проекта</change>
+    </changes>
+  </metadata>
+
+  <!-- ОБЩАЯ ИНФОРМАЦИЯ О ПРОЕКТЕ -->
+  <project_info>
+    <name>microWakeWord</name>
+    <description>Проект кастомного wake-word "милый дом / любимый дом" на русском языке для ESPHome</description>
+    <status>Оптимизированный после очистки временных данных</status>
+    <main_directory>/home/microWakeWord</main_directory>
+    <data_directory>/home/microWakeWord_data</data_directory>
+    <total_files>200+ (реорганизованы)</total_files>
+    <total_size>~6GB (после очистки)</total_size>
+    <structure_version>3.0 (очищенная архитектура)</structure_version>
+    <cleanup_saved_mb>859</cleanup_saved_mb>
+  </project_info>
+
+  <!-- КРИТИЧЕСКИЕ ПРАВИЛА РАЗРАБОТКИ -->
+  <critical_rules>
+    <rule_1>
+      <name>ВСЕГДА ТОЛЬКО ЧЕРЕЗ СИСТЕМУ ТАСКОВ</name>
+      <description>НИКОГДА НЕ ЗАПУСКАЙТЕ ПРОЦЕССЫ НАПРЯМУЮ</description>
+      <forbidden>
+        <command>python use_original_library_correctly.py</command>
+        <command>python train_model_only.py</command>
+        <command>python generate_spectrograms.py</command>
+      </forbidden>
+      <required>
+        <command>./manage_tasks.sh start train_model</command>
+        <command>./manage_tasks.sh start generate_data</command>
+        <command>./manage_tasks.sh start</command>
+      </required>
+    </rule_1>
+    
+    <rule_2>
+      <name>ВСЕГДА ИСПОЛЬЗУЙТЕ VENV</name>
+      <description>НИКОГДА НЕ УСТАНАВЛИВАЙТЕ ПАКЕТЫ В СИСТЕМНЫЙ PYTHON</description>
+      <forbidden>
+        <command>pip install package_name</command>
+        <command>python -m pip install package_name</command>
+      </forbidden>
+      <required>
+        <command>python -m venv .venv</command>
+        <command>source .venv/bin/activate && pip install package_name</command>
+        <command>./manage_tasks.sh start task_name</command>
+      </required>
+    </rule_2>
+    
+    <rule_3>
+      <name>Wake Word ≠ Обычная классификация</name>
+      <description>Дисбаланс данных - это норма для wake word</description>
+      <positives>0.1-1% (редкие события)</positives>
+      <negatives>99-99.9% (постоянный фон)</negatives>
+      <ratio>50:1, 100:1, 1000:1 - ЭТО НОРМА!</ratio>
+      <imbalance>не проблема, а особенность задачи</imbalance>
+      <warning>100% точность на TTS данных - НЕ НОРМАЛЬНО (признак переобучения)</warning>
+    </rule_3>
+    
+    <rule_4>
+      <name>НЕ ЗАБИВАЙ ХУЙ - ДОДЕЛЫВАЙ ПРАВИЛЬНО</name>
+      <description>ВСЕГДА ДОДЕЛЫВАЙ ПРАВИЛЬНО, А НЕ ЗАБИВАЙ ХУЙ!</description>
+      <requirements>
+        <requirement>Если создаешь новую задачу - ДОБАВЛЯЙ ЕЁ В СИСТЕМУ УПРАВЛЕНИЯ!</requirement>
+        <requirement>Если находишь ошибку - ИСПРАВЛЯЙ ЕЁ ПОЛНОСТЬЮ!</requirement>
+        <requirement>Если что-то не работает - ДОВОДИ ДО КОНЦА!</requirement>
+        <requirement>НЕ БРОСАЙ НА ПОЛПУТИ - ДЕЛАЙ КАК НАДО!</requirement>
+      </requirements>
+    </rule_4>
+    
+    <rule_5>
+      <name>НЕ ВРИ ПРО УСПЕХ - ПРОВЕРЯЙ РЕЗУЛЬТАТЫ</name>
+      <description>ПОКА НЕ ПРОВЕРИШЬ - НЕ ГОВОРИ ЧТО УСПЕШНО!</description>
+      <requirements>
+        <requirement>Не говори "успешно" пока не проверил результат!</requirement>
+        <requirement>Не говори "работает" пока не увидел что работает!</requirement>
+        <requirement>Не говори "готово" пока не убедился что готово!</requirement>
+        <requirement>СНАЧАЛА ПРОВЕРЬ - ПОТОМ ГОВОРИ!</requirement>
+      </requirements>
+    </rule_5>
+  </critical_rules>
+
+  <!-- ОСНОВНАЯ СТРУКТУРА ПРОЕКТА -->
+  <project_structure>
+    <root_directory>/home/microWakeWord</root_directory>
+    <total_size>~6GB (после очистки)</total_size>
+    <cleanup_saved_mb>859</cleanup_saved_mb>
+    
+    <!-- ИСХОДНЫЙ КОД -->
+    <src_directory>
+      <path>/home/microWakeWord/src/</path>
+      <status>ACTIVE</status>
+      <description>Основной исходный код проекта</description>
+      <size>644K</size>
+      
+      <!-- ПАЙПЛАЙН ОБРАБОТКИ ДАННЫХ -->
+      <pipeline_subdirectory>
+        <path>/home/microWakeWord/src/pipeline/</path>
+        <status>ACTIVE</status>
+        <description>Пайплайн обработки данных</description>
+        
+        <!-- ОБУЧЕНИЕ МОДЕЛЕЙ -->
+        <training_subdirectory>
+          <path>/home/microWakeWord/src/pipeline/training/</path>
+          <status>ACTIVE</status>
+          <description>Скрипты обучения моделей</description>
+          <files>
+            <file name="train_model_only.py" status="ACTIVE" description="ОСНОВНОЙ скрипт обучения"/>
+            <file name="train_model_expanded.py" status="ACTIVE" description="РАСШИРЕННАЯ модель (141KB)"/>
+            <file name="train_with_mixed_data_fixed.py" status="ACTIVE" description="СМЕШАННЫЕ данные"/>
+          </files>
+        </training_subdirectory>
+        
+        <!-- ГЕНЕРАЦИЯ ДАННЫХ -->
+        <data_generation_subdirectory>
+          <path>/home/microWakeWord/src/pipeline/data_generation/</path>
+          <status>ACTIVE</status>
+          <description>Скрипты генерации данных</description>
+          <files>
+            <file name="generate_both_phrases.py" status="ACTIVE" description="Генерация TTS данных"/>
+            <file name="generate_spectrograms.py" status="ACTIVE" description="Генерация спектрограмм"/>
+            <file name="generate_negatives_tts.py" status="ACTIVE" description="TTS негативные данные"/>
+            <file name="generate_negatives_spectrograms.py" status="ACTIVE" description="Спектрограммы для TTS негативов"/>
+            <file name="collect_real_data.py" status="ACTIVE" description="Сбор реальных данных"/>
+            <file name="process_real_data.py" status="ACTIVE" description="Обработка реальных данных"/>
+          </files>
+        </data_generation_subdirectory>
+        
+        <!-- АУГМЕНТАЦИИ -->
+        <augmentation_subdirectory>
+          <path>/home/microWakeWord/src/pipeline/augmentation/</path>
+          <status>ACTIVE</status>
+          <description>Аудио аугментации</description>
+          <files>
+            <file name="apply_augmentations.py" status="ACTIVE" description="Применение аугментаций"/>
+          </files>
+        </augmentation_subdirectory>
+        
+        <!-- БАЛАНСИРОВКА -->
+        <balancing_subdirectory>
+          <path>/home/microWakeWord/src/pipeline/balancing/</path>
+          <status>ACTIVE</status>
+          <description>Балансировка датасета</description>
+          <files>
+            <file name="balance_dataset.py" status="ACTIVE" description="Балансировка датасета"/>
+          </files>
+        </balancing_subdirectory>
+      </pipeline_subdirectory>
+      
+      <!-- УПРАВЛЕНИЕ ЗАДАЧАМИ -->
+      <management_subdirectory>
+        <path>/home/microWakeWord/src/management/</path>
+        <status>ACTIVE</status>
+        <description>Система управления задачами</description>
+        <files>
+          <file name="task_manager.py" status="ACTIVE" description="ОСНОВНОЙ менеджер задач (19 задач)"/>
+          <file name="parallel_pipeline_manager.py" status="ACTIVE" description="ПАРАЛЛЕЛЬНЫЙ менеджер"/>
+          <file name="cyclic_pipeline_manager.py" status="ACTIVE" description="ЦИКЛИЧЕСКИЙ менеджер"/>
+          <file name="error_recovery_system.py" status="ACTIVE" description="СИСТЕМА восстановления"/>
+          <file name="run_pipeline.py" status="ACTIVE" description="ЗАПУСК пайплайна"/>
+          <file name="start_pipeline.py" status="ACTIVE" description="СТАРТ пайплайна"/>
+        </files>
+      </management_subdirectory>
+      
+      <!-- УТИЛИТЫ -->
+      <utils_subdirectory>
+        <path>/home/microWakeWord/src/utils/</path>
+        <status>ACTIVE</status>
+        <description>Утилиты и вспомогательные скрипты</description>
+        <files>
+          <file name="path_manager.py" status="ACTIVE" description="УПРАВЛЕНИЕ путями"/>
+          <file name="centralized_logger.py" status="ACTIVE" description="ЦЕНТРАЛИЗОВАННОЕ логирование"/>
+          <file name="config_manager.py" status="ACTIVE" description="УПРАВЛЕНИЕ конфигурацией"/>
+          <file name="generate_unique_model_name.py" status="ACTIVE" description="ГЕНЕРАЦИЯ имен моделей"/>
+        </files>
+      </utils_subdirectory>
+    </src_directory>
+    
+    <!-- КОНФИГУРАЦИИ -->
+    <config_directory>
+      <path>/home/microWakeWord/config/</path>
+      <status>READ_ONLY</status>
+      <description>Конфигурационные файлы проекта</description>
+      <size>606M</size>
+      <esphome_build>
+        <path>/home/microWakeWord/config/.esphome/build/</path>
+        <size>606M</size>
+        <description>ESPHome build артефакты (firmware.elf, библиотеки, объектные файлы)</description>
+        <status>BUILD_ARTIFACTS</status>
+        <note>Содержит скомпилированные файлы ESPHome для ESP32</note>
+        <large_files>
+          <file name="firmware.elf" size="31-32M" description="Скомпилированная прошивка"/>
+          <file name="libespressif__esp-tflite-micro.a" size="34M" description="Библиотека TensorFlow Lite"/>
+          <file name="firmware.map" size="13-14M" description="Карта памяти прошивки"/>
+          <file name="build.ninja" size="9.3M" description="Файл сборки Ninja"/>
+          <file name="compile_commands.json" size="8.2-8.3M" description="Команды компиляции"/>
+        </large_files>
+      </esphome_build>
+    </config_directory>
+    
+    <!-- МОДЕЛИ -->
+    <models_directory>
+      <path>/home/microWakeWord/models/</path>
+      <status>ACTIVE</status>
+      <description>Модели проекта</description>
+      <size>76M</size>
+    </models_directory>
+    
+    <!-- ОБУЧЕННЫЕ МОДЕЛИ -->
+    <trained_models_directory>
+      <path>/home/microWakeWord/trained_models/</path>
+      <status>ACTIVE</status>
+      <description>Обученные модели</description>
+      <size>18M</size>
+    </trained_models_directory>
+    
+    <!-- ДОКУМЕНТАЦИЯ -->
+    <docs_directory>
+      <path>/home/microWakeWord/docs/</path>
+      <status>READ_ONLY</status>
+      <description>Документация проекта</description>
+      <size>332K</size>
+      <structure>
+        <main>Основные документы (36K)</main>
+        <technical>Техническая документация (200K)</technical>
+        <models>Модели (80K)</models>
+        <requirements>Зависимости (8K)</requirements>
+      </structure>
+    </docs_directory>
+    
+    <!-- ЛОГИ -->
+    <logs_directory>
+      <path>/home/microWakeWord/logs/</path>
+      <status>ACTIVE</status>
+      <description>Логи проекта</description>
+      <size>876K</size>
+    </logs_directory>
+    
+    <!-- БЕКАПЫ -->
+    <backups_directory>
+      <path>/home/microWakeWord/backups/</path>
+      <status>ACTIVE</status>
+      <description>Резервные копии</description>
+      <size>4.6G</size>
+    </backups_directory>
+  </project_structure>
+
+  <!-- ДАННЫЕ ПРОЕКТА -->
+  <data_structure>
+    <data_root>/home/microWakeWord_data</data_root>
+    <status>OPTIMIZED_AFTER_CLEANUP</status>
+    <cleanup_saved_mb>859</cleanup_saved_mb>
+    
+    <!-- ПОЗИТИВНЫЕ ДАННЫЕ -->
+    <positives_data>
+      <path>/home/microWakeWord_data/features_positives/</path>
+      <files>3200 WAV files</files>
+      <size>73MB</size>
+      <format>WAV</format>
+      <sample_rate>16000</sample_rate>
+      <purpose>Позитивные данные с аугментациями</purpose>
+      <status>ACTIVE - used in training</status>
+      <description>Финальные позитивные данные для обучения wake word "милый дом / любимый дом"</description>
+    </positives_data>
+    
+    <!-- НЕГАТИВНЫЕ ДАННЫЕ -->
+    <negatives_data>
+      <path>/home/microWakeWord_data/features_negatives/</path>
+      <files>319032 WAV files</files>
+      <size>361MB</size>
+      <format>WAV</format>
+      <sample_rate>16000</sample_rate>
+      <purpose>Негативные данные с обработкой</purpose>
+      <status>ACTIVE - used in training</status>
+      <description>Обработанные негативные данные для обучения</description>
+    </negatives_data>
+    
+    <!-- AMBIENT ДАННЫЕ -->
+    <ambient_data>
+      <path>/home/microWakeWord_data/background/</path>
+      <files>147456 WAV files</files>
+      <size>207MB</size>
+      <format>WAV</format>
+      <sample_rate>16000</sample_rate>
+      <purpose>Фоновые ambient данные</purpose>
+      <status>ACTIVE - used in training</status>
+      <description>Фоновые данные для обучения wake word</description>
+    </ambient_data>
+    
+    <!-- RAW AMBIENT ДАННЫЕ -->
+    <raw_ambient_data>
+      <path>/home/microWakeWord_data/background_raw/</path>
+      <size>92GB</size>
+      <format>WAV</format>
+      <purpose>Сырые ambient данные (большой размер)</purpose>
+      <status>STORAGE - not used in training</status>
+      <description>Сырые ambient данные для будущей обработки</description>
+    </raw_ambient_data>
+    
+    <!-- ДОПОЛНИТЕЛЬНЫЕ ДАННЫЕ -->
+    <additional_data>
+      <hard_negatives>
+        <path>/home/microWakeWord_data/hard_negatives_parallel_with_noise/</path>
+        <size>496KB</size>
+        <purpose>Hard negatives с шумом</purpose>
+        <status>ACTIVE</status>
+      </hard_negatives>
+      
+      <hard_negatives_conservative>
+        <path>/home/microWakeWord_data/hard_negatives_with_noise_conservative/</path>
+        <size>468KB</size>
+        <purpose>Hard negatives консервативные</purpose>
+        <status>ACTIVE</status>
+      </hard_negatives_conservative>
+      
+      <negatives_processed>
+        <path>/home/microWakeWord_data/negatives_processed/</path>
+        <files>638976 WAV files</files>
+        <purpose>Обработанные негативные данные</purpose>
+        <status>ACTIVE</status>
+      </negatives_processed>
+      
+      <negatives_tts>
+        <path>/home/microWakeWord_data/negatives_tts/</path>
+        <files>167936 WAV files</files>
+        <purpose>TTS негативные данные</purpose>
+        <status>ACTIVE</status>
+      </negatives_tts>
+    </additional_data>
+    
+    <!-- ОБЩАЯ СТАТИСТИКА -->
+    <total_statistics>
+      <total_files>470688</total_files>
+      <total_size_gb>93</total_size_gb>
+      <negatives_to_positives_ratio>99.7:1</negatives_to_positives_ratio>
+      <status>OPTIMIZED_FOR_WAKE_WORD</status>
+      <cleanup_saved_mb>859</cleanup_saved_mb>
+      <description>Оптимизированная структура данных для wake word обучения</description>
+    </total_statistics>
+  </data_structure>
+
+  <!-- СИСТЕМА УПРАВЛЕНИЯ ЗАДАЧАМИ -->
+  <task_management>
+    <file>/home/microWakeWord/src/management/task_manager.py</file>
+    <status>ACTIVE</status>
+    <total_tasks>19</total_tasks>
+    
+    <!-- ОСНОВНЫЕ ЗАДАЧИ -->
+    <main_tasks>
+      <task name="generate_data" command="python src/pipeline/data_generation/generate_both_phrases.py" status="ACTIVE" description="Генерация TTS данных"/>
+      <task name="generate_spectrograms" command="python src/pipeline/data_generation/generate_spectrograms.py" status="ACTIVE" description="Генерация спектрограмм"/>
+      <task name="augmentations" command="python src/pipeline/augmentation/apply_augmentations.py" status="ACTIVE" description="Аудио аугментации"/>
+      <task name="balance_dataset" command="python src/pipeline/balancing/balance_dataset.py" status="ACTIVE" description="Балансировка датасета"/>
+      <task name="train_model" command="python src/pipeline/training/train_model_only.py" status="ACTIVE" description="Обучение стандартной модели (50KB)"/>
+      <task name="train_larger" command="python src/pipeline/training/train_model_expanded.py" status="ACTIVE" description="Обучение большой модели (141KB)"/>
+    </main_tasks>
+    
+    <!-- TTS НЕГАТИВЫ -->
+    <tts_negative_tasks>
+      <task name="generate_negatives_tts" command="python src/pipeline/data_generation/generate_negatives_tts.py" status="ACTIVE" description="TTS негативные данные"/>
+      <task name="generate_negatives_spectrograms" command="python src/pipeline/data_generation/generate_negatives_spectrograms.py" status="ACTIVE" description="Генерация спектрограмм для TTS негативов"/>
+    </tts_negative_tasks>
+    
+    <!-- РЕАЛЬНЫЕ ДАННЫЕ -->
+    <real_data_tasks>
+      <task name="generate_negatives_real" command="python src/pipeline/data_generation/collect_real_data.py" status="ACTIVE" description="Генерация реальных негативных данных"/>
+      <task name="generate_background_data" command="python src/pipeline/data_generation/process_real_data.py" status="ACTIVE" description="Генерация ambient данных"/>
+    </real_data_tasks>
+    
+    <!-- ДОПОЛНИТЕЛЬНЫЕ ЗАДАЧИ -->
+    <additional_tasks>
+      <task name="generate_hard_negatives" command="python backups/generate_hard_negatives.py" status="ACTIVE" description="Генерация hard negatives"/>
+      <task name="generate_enhanced_positives" command="python backups/generate_enhanced_positives.py" status="ACTIVE" description="Улучшенные позитивные данные"/>
+      <task name="generate_background" command="python backups/generate_background_data.py" status="ACTIVE" description="Генерация фоновых данных"/>
+      <task name="fix_sample_rate_to_16000" command="python backups/fix_sample_rate_to_16000.py" status="ACTIVE" description="Конвертация sample rate"/>
+    </additional_tasks>
+    
+    <!-- СМЕШАННЫЕ МОДЕЛИ -->
+    <mixed_model_tasks>
+      <task name="train_mixed_conservative" command="python src/pipeline/training/train_with_mixed_data_fixed.py --variant conservative" status="ACTIVE" description="Обучение смешанной модели (консервативный)"/>
+      <task name="train_mixed_moderate" command="python src/pipeline/training/train_with_mixed_data_fixed.py --variant moderate" status="ACTIVE" description="Обучение смешанной модели (умеренный)"/>
+      <task name="train_mixed_aggressive" command="python src/pipeline/training/train_with_mixed_data_fixed.py --variant aggressive" status="ACTIVE" description="Обучение смешанной модели (агрессивный)"/>
+      <task name="train_mixed_extreme" command="python src/pipeline/training/train_with_mixed_data_fixed.py --variant extreme" status="ACTIVE" description="Обучение смешанной модели (экстремальный)"/>
+      <task name="train_mixed_all" command="python src/pipeline/training/train_with_mixed_data_fixed.py --variant conservative" status="ACTIVE" description="Обучение смешанной модели (все варианты)"/>
+      <task name="train_mixed_fixed" command="python src/pipeline/training/train_with_mixed_data_fixed.py --variant conservative" status="ACTIVE" description="Обучение смешанной модели (исправленная)"/>
+    </mixed_model_tasks>
+    
+    <!-- ESPHOME И ТЕСТЫ -->
+    <esphome_test_tasks>
+      <task name="train_esphome_model" command="python train_esphome_model.py" status="ACTIVE" description="Обучение ESPHome модели"/>
+      <task name="test_training_5000" command="python test_training_5000_steps.py" status="ACTIVE" description="Тестовое обучение на 5000 шагов с логированием"/>
+    </esphome_test_tasks>
+    
+    <!-- СТАТИСТИКА ЗАДАЧ -->
+    <task_statistics>
+      <total_tasks>19</total_tasks>
+      <main_tasks>6</main_tasks>
+      <tts_negative_tasks>2</tts_negative_tasks>
+      <real_data_tasks>2</real_data_tasks>
+      <additional_tasks>4</additional_tasks>
+      <mixed_model_tasks>6</mixed_model_tasks>
+      <esphome_test_tasks>2</esphome_test_tasks>
+      
+      <categories>
+        <data_generation>8</data_generation>
+        <data_processing>2</data_processing>
+        <training>8</training>
+        <testing>1</testing>
+      </categories>
+    </task_statistics>
+  </task_management>
+
+  <!-- УДАЛЕННЫЕ ВРЕМЕННЫЕ ДАННЫЕ -->
+  <removed_temporary_data>
+    <positives_both_aug_temp>
+      <path>/home/microWakeWord/positives_both_aug_temp/</path>
+      <size>859MB</size>
+      <purpose>Временные аугментированные аудио файлы</purpose>
+      <status>REMOVED</status>
+      <removal_date>2025-01-22</removal_date>
+    </positives_both_aug_temp>
+    
+    <generated_features>
+      <path>/home/microWakeWord/generated_features/</path>
+      <size>0MB</size>
+      <purpose>Пустые директории для спектрограмм</purpose>
+      <status>REMOVED</status>
+      <removal_date>2025-01-22</removal_date>
+    </generated_features>
+    
+    <temp>
+      <path>/home/microWakeWord/temp/</path>
+      <size>0MB</size>
+      <purpose>Пустая временная директория</purpose>
+      <status>REMOVED</status>
+      <removal_date>2025-01-22</removal_date>
+    </temp>
+  </removed_temporary_data>
+
+  <!-- УДАЛЕННЫЕ ПУСТЫЕ ДИРЕКТОРИИ -->
+  <removed_empty_directories>
+    <tools_empty>
+      <path>/home/microWakeWord/tools/visualization/</path>
+      <purpose>Пустая директория для визуализации</purpose>
+      <status>REMOVED</status>
+      <removal_date>2025-01-22</removal_date>
+    </tools_empty>
+    
+    <deployment_empty>
+      <path>/home/microWakeWord/deployment/kubernetes/</path>
+      <path>/home/microWakeWord/deployment/configs/</path>
+      <purpose>Пустые директории для развертывания</purpose>
+      <status>REMOVED</status>
+      <removal_date>2025-01-22</removal_date>
+    </deployment_empty>
+    
+    <config_empty>
+      <path>/home/microWakeWord/config/pipeline/</path>
+      <path>/home/microWakeWord/config/datasets/</path>
+      <path>/home/microWakeWord/config/deployment/</path>
+      <purpose>Пустые директории конфигурации</purpose>
+      <status>REMOVED</status>
+      <removal_date>2025-01-22</removal_date>
+    </config_empty>
+    
+    <logs_empty>
+      <path>/home/microWakeWord/logs/pipeline/</path>
+      <path>/home/microWakeWord/logs/training/</path>
+      <path>/home/microWakeWord/logs/system/</path>
+      <path>/home/microWakeWord/logs/models/</path>
+      <path>/home/microWakeWord/logs/archived/daily/</path>
+      <path>/home/microWakeWord/logs/archived/weekly/</path>
+      <path>/home/microWakeWord/logs/archived/monthly/</path>
+      <path>/home/microWakeWord/logs/archived/</path>
+      <purpose>Пустые директории логов</purpose>
+      <status>REMOVED</status>
+      <removal_date>2025-01-22</removal_date>
+    </logs_empty>
+    
+    <backups_empty>
+      <path>/home/microWakeWord/backups/piper-sample-generator/positives_combined_spec/</path>
+      <path>/home/microWakeWord/backups/piper-sample-generator/negatives_moy_dom_spec/</path>
+      <path>/home/microWakeWord/backups/models/</path>
+      <path>/home/microWakeWord/backups/data/</path>
+      <path>/home/microWakeWord/backups/config/</path>
+      <path>/home/microWakeWord/backups/code/</path>
+      <purpose>Пустые директории бекапов</purpose>
+      <status>REMOVED</status>
+      <removal_date>2025-01-22</removal_date>
+    </backups_empty>
+    
+    <scripts_empty>
+      <path>/home/microWakeWord/scripts/deployment/</path>
+      <path>/home/microWakeWord/scripts/maintenance/</path>
+      <path>/home/microWakeWord/scripts/utilities/</path>
+      <purpose>Пустые директории скриптов</purpose>
+      <status>REMOVED</status>
+      <removal_date>2025-01-22</removal_date>
+    </scripts_empty>
+    
+    <docs_empty>
+      <path>/home/microWakeWord/docs/guides/</path>
+      <path>/home/microWakeWord/docs/reports/</path>
+      <path>/home/microWakeWord/docs/api/</path>
+      <path>/home/microWakeWord/docs/user/</path>
+      <path>/home/microWakeWord/docs/developer/</path>
+      <path>/home/microWakeWord/docs/changelog/</path>
+      <purpose>Пустые директории документации</purpose>
+      <status>REMOVED</status>
+      <removal_date>2025-01-22</removal_date>
+    </docs_empty>
+    
+    <tests_empty>
+      <path>/home/microWakeWord/tests/integration/</path>
+      <path>/home/microWakeWord/tests/performance/</path>
+      <path>/home/microWakeWord/tests/e2e/</path>
+      <path>/home/microWakeWord/tests/fixtures/</path>
+      <purpose>Пустые директории тестов</purpose>
+      <status>REMOVED</status>
+      <removal_date>2025-01-22</removal_date>
+    </tests_empty>
+  </removed_empty_directories>
+
+  <!-- КОМАНДЫ УПРАВЛЕНИЯ -->
+  <management_commands>
+    <command>./manage_tasks.sh start &lt;task_name&gt;</command>
+    <command>./manage_tasks.sh stop &lt;task_name&gt;</command>
+    <command>./manage_tasks.sh status</command>
+    <command>./manage_tasks.sh logs &lt;task_name&gt;</command>
+    <command>./manage_tasks.sh stop-all</command>
+    <command>./manage_tasks.sh cleanup</command>
+  </management_commands>
+
+  <!-- ПРОБЛЕМЫ И РЕШЕНИЯ -->
+  <problems_solutions>
+    <problem_1>
+      <name>Ошибка `[micro_wake_word] is an invalid option`</name>
+      <solution>
+        <step>Проверьте формат манифеста: `version: 2`, `type: "micro"`</step>
+        <step>Путь к модели должен быть ОТНОСИТЕЛЬНЫМ!</step>
+        <step>Убедитесь что модель находится в правильной директории</step>
+      </solution>
+    </problem_1>
+    
+    <problem_2>
+      <name>Ошибка `AttributeError: 'MessageFactory' object has no attribute 'GetPrototype'`</name>
+      <solution>
+        <step>Установите правильную версию Protobuf: `pip install protobuf==4.25.5`</step>
+        <step>Переустановите TensorFlow: `pip install tensorflow==2.16.1`</step>
+        <step>Проверьте совместимость версий</step>
+      </solution>
+    </problem_2>
+    
+    <problem_3>
+      <name>Задачи не запускаются</name>
+      <solution>
+        <step>Проверьте активацию виртуального окружения</step>
+        <step>Убедитесь что psutil установлен: `pip install psutil`</step>
+        <step>Проверьте права доступа к скриптам</step>
+      </solution>
+    </problem_3>
+    
+    <problem_4>
+      <name>Модель слишком большая</name>
+      <solution>
+        <step>Используйте MixedNet модель (50KB)</step>
+        <step>Уменьшите tensor_arena_size в манифесте</step>
+        <step>Проверьте квантование модели</step>
+      </solution>
+    </problem_4>
+  </problems_solutions>
+
+  <!-- РЕЗУЛЬТАТЫ И МЕТРИКИ -->
+  <results_metrics>
+    <expected_metrics>
+      <auc_score>0.85-0.95 (реалистично)</auc_score>
+      <frr>0.01-0.05 (False Reject Rate)</frr>
+      <fa_per_hour>0.1-2.0 (False Accepts per Hour)</fa_per_hour>
+      <accuracy>Не главное, дисбаланс искажает</accuracy>
+      <precision_recall>Важны, но в контексте wake word</precision_recall>
+    </expected_metrics>
+    
+    <critical_problems>
+      <problem>Accuracy: 100% - переобучение или утечка данных</problem>
+      <problem>Val Accuracy: 100% - модель запомнила данные, не обобщает</problem>
+      <problem>AUC Score: 1.0 - идеальный результат невозможен в реальности</problem>
+      <problem>Loss: 0.0003 - слишком низкая ошибка</problem>
+      <problem>Val Loss: 0.0005 - модель переобучилась</problem>
+    </critical_problems>
+    
+    <actions_on_problems>
+      <action>НЕМЕДЛЕННО проверь пайплайн на ошибки</action>
+      <action>Проверь что процесс обучения ДОШЕЛ ДО ОБУЧЕНИЯ</action>
+      <action>Проверь баланс данных и параметры обучения</action>
+      <action>Проверь что используются правильные тестовые данные</action>
+      <action>НЕ СЧИТАЙ такие метрики успешными - это баг!</action>
+    </actions_on_problems>
+  </results_metrics>
+
+  <!-- ИСПРАВЛЕНИЯ -->
+  <fixes>
+    <fix_1>
+      <name>Исправлен контракт данных</name>
+      <description>Размеры спектрограмм приведены к (147, 40)</description>
+      <files_affected>
+        <file>path_manager.py</file>
+        <file>generate_spectrograms.py</file>
+        <file>train_model_only.py</file>
+      </files_affected>
+    </fix_1>
+    
+    <fix_2>
+      <name>Исправлены пути к данным</name>
+      <description>Обновлены пути в соответствии с реальной структурой</description>
+      <files_affected>
+        <file>path_manager.py</file>
+        <file>task_manager.py</file>
+        <file>config_manager.py</file>
+      </files_affected>
+    </fix_2>
+    
+    <fix_3>
+      <name>Очистка временных данных</name>
+      <description>Удалены временные файлы для экономии места</description>
+      <files_removed>
+        <file>positives_both_aug_temp/ (859M)</file>
+        <file>generated_features/ (0M)</file>
+        <file>temp/ (0M)</file>
+      </files_removed>
+    </fix_3>
+  </fixes>
+
+  <!-- ВХОДНЫЕ ДАННЫЕ -->
+  <input_data>
+    <data_sources>
+      <source name="TTS позитивные" path="/home/microWakeWord_data/features_positives/" files="3200" size="73MB"/>
+      <source name="TTS негативные" path="/home/microWakeWord_data/features_negatives/" files="319032" size="361MB"/>
+      <source name="Ambient данные" path="/home/microWakeWord_data/background/" files="147456" size="207MB"/>
+      <source name="Raw ambient" path="/home/microWakeWord_data/background_raw/" size="92GB"/>
+    </data_sources>
+    
+    <data_format>
+      <format>WAV</format>
+      <sample_rate>16000</sample_rate>
+      <channels>1 (моно)</channels>
+      <bit_depth>16-bit</bit_depth>
+    </data_format>
+    
+    <processing_pipeline>
+      <step_1>Генерация TTS данных</step_1>
+      <step_2>Аугментации</step_2>
+      <step_3>Генерация спектрограмм</step_3>
+      <step_4>Балансировка датасета</step_4>
+      <step_5>Обучение модели</step_5>
+    </processing_pipeline>
+  </input_data>
+
+</pipeline_complete>

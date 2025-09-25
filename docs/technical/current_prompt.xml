@@ -1,0 +1,332 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<current_prompt>
+  <timestamp>2025-09-22T13:50:00</timestamp>
+  <user_request>
+    <action>Записать current_prompt.xml с планом архитектуры пайплайна</action>
+    <requirements>
+      <param_1>Параметры смешивания: несколько трейнов с разными параметрами</param_1>
+      <param_2>Запуск через таски в фоне на всех данных, трейнинг на промежуточных результатах</param_2>
+      <param_3>Неблокирующий пайплайн - приоритет скорости</param_3>
+      <param_4>Тестирование: на свой вкус</param_4>
+    </requirements>
+  </user_request>
+
+  <!-- АРХИТЕКТУРА И ПЛАН ИЗМЕНЕНИЯ ПАЙПЛАЙНА -->
+  <pipeline_architecture>
+    <current_pipeline>
+      <flow>Генерация данных (TTS) → Аугментации → Балансировка → Обучение → TFLite</flow>
+      <data_types>
+        <tts_positives>Идеально чистые (3200 файлов)</tts_positives>
+        <tts_negatives>Идеально чистые (690 файлов)</tts_negatives>
+        <hard_negatives>Идеально чистые (5437 файлов)</hard_negatives>
+        <real_negatives>С естественным шумом (6348+ файлов)</real_negatives>
+      </data_types>
+      <problem>Модель переобучена на идеальных TTS данных, не различает реальные данные с шумом</problem>
+    </current_pipeline>
+
+    <new_pipeline>
+      <flow>Генерация данных (TTS) → Смешивание с шумом → Аугментации → Балансировка → Обучение → TFLite</flow>
+      <data_types>
+        <tts_positives_with_noise>Реалистичные позитивные</tts_positives_with_noise>
+        <tts_negatives_with_noise>Реалистичные негативные</tts_negatives_with_noise>
+        <hard_negatives_with_noise>Реалистичные hard negatives</hard_negatives_with_noise>
+        <real_negatives>Без изменений (уже реалистичные)</real_negatives>
+      </data_types>
+      <goal>Уравнивание качества всех данных, предотвращение переобучения</goal>
+    </new_pipeline>
+  </pipeline_architecture>
+
+  <!-- ДЕТАЛЬНАЯ АРХИТЕКТУРА -->
+  <detailed_architecture>
+    <stage_1_mixing>
+      <script>mix_tts_with_real_noise.py</script>
+      <purpose>Смешивает все TTS данные с реальным шумом</purpose>
+      <sources>
+        <tts_positives>/home/microWakeWord_data/positives_final/ (3200 файлов)</tts_positives>
+        <tts_negatives>/home/microWakeWord_data/negatives_both/ (690 файлов)</tts_negatives>
+        <hard_negatives>/home/microWakeWord_data/hard_negatives/ (299 файлов)</hard_negatives>
+        <hard_negatives_parallel>/home/microWakeWord_data/hard_negatives_parallel/ (5138 файлов)</hard_negatives_parallel>
+      </sources>
+      <noise_source>/home/microWakeWord_data/negatives_real/</noise_source>
+      <outputs>
+        <positives_with_noise>/home/microWakeWord_data/positives_with_noise/</positives_with_noise>
+        <negatives_with_noise>/home/microWakeWord_data/negatives_with_noise/</negatives_with_noise>
+        <hard_negatives_with_noise>/home/microWakeWord_data/hard_negatives_with_noise/</hard_negatives_with_noise>
+      </outputs>
+      <algorithm>
+        <step_1>Загружаем TTS аудио (чистое)</step_1>
+        <step_2>Выбираем случайный реальный файл как источник шума</step_2>
+        <step_3>Смешиваем TTS + шум с регулируемым соотношением</step_3>
+        <step_4>Сохраняем результат</step_4>
+      </algorithm>
+    </stage_1_mixing>
+
+    <stage_2_augmentations>
+      <script>apply_enhanced_augmentations.py</script>
+      <purpose>Применяет более агрессивные аугментации к смешанным данным</purpose>
+      <enhanced_params>
+        <tempo_range>(0.8, 1.3) - ±30% изменения темпа</tempo_range>
+        <pitch_range>(-2, 2) - ±2 полутона</pitch_range>
+        <volume_range>(0.7, 1.3) - ±30% изменения громкости</volume_range>
+        <noise_addition>True - дополнительный шум</noise_addition>
+        <reverb_probability>0.8 - 80% вероятность реверберации</reverb_probability>
+        <codec_degradation>True - деградация через кодек</codec_degradation>
+      </enhanced_params>
+    </stage_2_augmentations>
+
+    <stage_3_balancing>
+      <script>balance_mixed_dataset.py</script>
+      <purpose>Балансирует смешанный датасет</purpose>
+      <sources>
+        <positives>/home/microWakeWord_data/positives_with_noise/</positives>
+        <negatives>
+          <source_1>/home/microWakeWord_data/negatives_with_noise/</source_1>
+          <source_2>/home/microWakeWord_data/hard_negatives_with_noise/</source_2>
+          <source_3>/home/microWakeWord_data/negatives_real/ (без изменений)</source_3>
+        </negatives>
+      </sources>
+      <target_ratio>1:10 (позитивные:негативные)</target_ratio>
+    </stage_3_balancing>
+
+    <stage_4_training>
+      <script>train_with_mixed_noisy_data.py</script>
+      <purpose>Обучает модель на смешанных данных с шумом</purpose>
+      <config>
+        <batch_size>32 - увеличенный batch_size</batch_size>
+        <learning_rate>0.001 - стандартная скорость обучения</learning_rate>
+        <epochs>50 - больше эпох для сложных данных</epochs>
+        <validation_split>0.2 - 20% для валидации</validation_split>
+        <early_stopping>True - ранняя остановка</early_stopping>
+        <data_augmentation>True - аугментации во время обучения</data_augmentation>
+        <mixed_precision>True - смешанная точность для скорости</mixed_precision>
+      </config>
+    </stage_4_training>
+  </detailed_architecture>
+
+  <!-- ПАРАМЕТРЫ СМЕШИВАНИЯ - НЕСКОЛЬКО ВАРИАНТОВ -->
+  <mixing_parameters>
+    <variant_1_conservative>
+      <name>Консервативный</name>
+      <noise_ratio>0.05 - 5% шума, 95% TTS</noise_ratio>
+      <snr_range>(20, 30) - высокий SNR</snr_range>
+      <random_seed>42</random_seed>
+      <preserve_duration>True</preserve_duration>
+      <normalize_output>True</normalize_output>
+    </variant_1_conservative>
+
+    <variant_2_moderate>
+      <name>Умеренный</name>
+      <noise_ratio>0.1 - 10% шума, 90% TTS</noise_ratio>
+      <snr_range>(15, 25) - средний SNR</snr_range>
+      <random_seed>42</random_seed>
+      <preserve_duration>True</preserve_duration>
+      <normalize_output>True</normalize_output>
+    </variant_2_moderate>
+
+    <variant_3_aggressive>
+      <name>Агрессивный</name>
+      <noise_ratio>0.2 - 20% шума, 80% TTS</noise_ratio>
+      <snr_range>(10, 20) - низкий SNR</snr_range>
+      <random_seed>42</random_seed>
+      <preserve_duration>True</preserve_duration>
+      <normalize_output>True</normalize_output>
+    </variant_3_aggressive>
+
+    <variant_4_extreme>
+      <name>Экстремальный</name>
+      <noise_ratio>0.3 - 30% шума, 70% TTS</noise_ratio>
+      <snr_range>(5, 15) - очень низкий SNR</snr_range>
+      <random_seed>42</random_seed>
+      <preserve_duration>True</preserve_duration>
+      <normalize_output>True</normalize_output>
+    </variant_4_extreme>
+  </mixing_parameters>
+
+  <!-- ПЛАН ВНЕДРЕНИЯ - НЕБЛОКИРУЮЩИЙ ПАЙПЛАЙН -->
+  <implementation_plan>
+    <phase_1_script_creation>
+      <duration>30 минут</duration>
+      <tasks>
+        <task_1>Создать mix_tts_with_real_noise.py с поддержкой всех вариантов параметров</task_1>
+        <task_2>Протестировать на небольшом наборе данных (100 файлов)</task_2>
+        <task_3>Настроить параметры смешивания для всех вариантов</task_3>
+      </tasks>
+      <status>PENDING</status>
+    </phase_1_script_creation>
+
+    <phase_2_pipeline_integration>
+      <duration>20 минут</duration>
+      <tasks>
+        <task_1>Обновить manage.sh с новыми задачами смешивания</task_1>
+        <task_2>Добавить задачи в task_manager.py для фонового выполнения</task_2>
+        <task_3>Создать конфигурационные файлы для всех вариантов</task_3>
+      </tasks>
+      <status>PENDING</status>
+    </phase_2_pipeline_integration>
+
+    <phase_3_parallel_processing>
+      <duration>60 минут</duration>
+      <tasks>
+        <task_1>Запустить все 4 варианта смешивания параллельно в фоне</task_1>
+        <task_2>Мониторить прогресс через task_manager</task_2>
+        <task_3>Обрабатывать промежуточные результаты по мере готовности</task_3>
+      </tasks>
+      <approach>НЕБЛОКИРУЮЩИЙ - все задачи в фоне</approach>
+      <status>PENDING</status>
+    </phase_3_parallel_processing>
+
+    <phase_4_training_variants>
+      <duration>120 минут</duration>
+      <tasks>
+        <task_1>Запустить обучение на каждом варианте смешанных данных</task_1>
+        <task_2>Сравнить метрики всех вариантов</task_2>
+        <task_3>Выбрать лучший вариант</task_3>
+        <task_4>Создать финальную TFLite модель</task_4>
+      </tasks>
+      <approach>ПАРАЛЛЕЛЬНОЕ ОБУЧЕНИЕ - все варианты одновременно</approach>
+      <status>PENDING</status>
+    </phase_4_training_variants>
+  </implementation_plan>
+
+  <!-- НОВЫЕ ЗАДАЧИ ДЛЯ TASK_MANAGER -->
+  <new_tasks>
+    <task_mix_conservative>
+      <name>mix_conservative</name>
+      <script>mix_tts_with_real_noise.py --variant=conservative</script>
+      <description>Смешивание TTS данных с консервативными параметрами</description>
+      <background>true</background>
+      <timeout>3600</timeout>
+    </task_mix_conservative>
+
+    <task_mix_moderate>
+      <name>mix_moderate</name>
+      <script>mix_tts_with_real_noise.py --variant=moderate</script>
+      <description>Смешивание TTS данных с умеренными параметрами</description>
+      <background>true</background>
+      <timeout>3600</timeout>
+    </task_mix_moderate>
+
+    <task_mix_aggressive>
+      <name>mix_aggressive</name>
+      <script>mix_tts_with_real_noise.py --variant=aggressive</script>
+      <description>Смешивание TTS данных с агрессивными параметрами</description>
+      <background>true</background>
+      <timeout>3600</timeout>
+    </task_mix_aggressive>
+
+    <task_mix_extreme>
+      <name>mix_extreme</name>
+      <script>mix_tts_with_real_noise.py --variant=extreme</script>
+      <description>Смешивание TTS данных с экстремальными параметрами</description>
+      <background>true</background>
+      <timeout>3600</timeout>
+    </task_mix_extreme>
+
+    <task_train_conservative>
+      <name>train_conservative</name>
+      <script>train_with_mixed_noisy_data.py --variant=conservative</script>
+      <description>Обучение на консервативно смешанных данных</description>
+      <background>true</background>
+      <timeout>7200</timeout>
+    </task_train_conservative>
+
+    <task_train_moderate>
+      <name>train_moderate</name>
+      <script>train_with_mixed_noisy_data.py --variant=moderate</script>
+      <description>Обучение на умеренно смешанных данных</description>
+      <background>true</background>
+      <timeout>7200</timeout>
+    </task_train_moderate>
+
+    <task_train_aggressive>
+      <name>train_aggressive</name>
+      <script>train_with_mixed_noisy_data.py --variant=aggressive</script>
+      <description>Обучение на агрессивно смешанных данных</description>
+      <background>true</background>
+      <timeout>7200</timeout>
+    </task_train_aggressive>
+
+    <task_train_extreme>
+      <name>train_extreme</name>
+      <script>train_with_mixed_noisy_data.py --variant=extreme</script>
+      <description>Обучение на экстремально смешанных данных</description>
+      <background>true</background>
+      <timeout>7200</timeout>
+    </task_train_extreme>
+  </new_tasks>
+
+  <!-- КОМАНДЫ ДЛЯ УПРАВЛЕНИЯ -->
+  <management_commands>
+    <start_all_mixing>
+      <command>./manage.sh start mix_conservative mix_moderate mix_aggressive mix_extreme</command>
+      <description>Запустить все варианты смешивания параллельно</description>
+    </start_all_mixing>
+
+    <start_all_training>
+      <command>./manage.sh start train_conservative train_moderate train_aggressive train_extreme</command>
+      <description>Запустить обучение на всех вариантах параллельно</description>
+    </start_all_training>
+
+    <monitor_progress>
+      <command>./manage.sh status</command>
+      <description>Мониторить прогресс всех задач</description>
+    </monitor_progress>
+
+    <check_results>
+      <command>./manage.sh logs train_conservative train_moderate train_aggressive train_extreme</command>
+      <description>Проверить результаты обучения всех вариантов</description>
+    </check_results>
+  </management_commands>
+
+  <!-- ОЖИДАЕМЫЕ РЕЗУЛЬТАТЫ -->
+  <expected_results>
+    <before_changes>
+      <tts_accuracy>100% - переобучение</tts_accuracy>
+      <real_accuracy>0% - не различает реальные данные</real_accuracy>
+      <overfitting>Да - модель запоминает идеальные TTS данные</overfitting>
+    </before_changes>
+
+    <after_changes>
+      <overall_accuracy>85-95% - реалистичная точность</overall_accuracy>
+      <generalization>Лучшее обобщение на реальные условия</generalization>
+      <noise_resistance>Устойчивость к шуму и помехам</noise_resistance>
+      <overfitting>Нет - уравнено качество всех данных</overfitting>
+    </after_changes>
+  </expected_results>
+
+  <!-- КЛЮЧЕВЫЕ ПРИНЦИПЫ -->
+  <key_principles>
+    <principle_1>
+      <name>Уравнивание качества данных</name>
+      <description>Все данные должны иметь похожий уровень шума</description>
+      <goal>Предотвращение переобучения на "идеальных" данных</goal>
+    </principle_1>
+
+    <principle_2>
+      <name>Сохранение разнообразия</name>
+      <description>Использовать все доступные источники данных</description>
+      <goal>Максимальное покрытие различных условий</goal>
+    </principle_2>
+
+    <principle_3>
+      <name>Неблокирующий пайплайн</name>
+      <description>Все задачи выполняются в фоне</description>
+      <goal>Максимальная скорость выполнения</goal>
+    </principle_3>
+
+    <principle_4>
+      <name>Параллельное тестирование</name>
+      <description>Несколько вариантов параметров одновременно</description>
+      <goal>Быстрое нахождение оптимальных параметров</goal>
+    </principle_4>
+  </key_principles>
+
+  <!-- СТАТУС РЕАЛИЗАЦИИ -->
+  <implementation_status>
+    <current_phase>ПЛАНИРОВАНИЕ</current_phase>
+    <next_action>Создание скрипта mix_tts_with_real_noise.py</next_action>
+    <estimated_completion>4 часа</estimated_completion>
+    <priority>ВЫСОКИЙ - исправление переобучения</priority>
+  </implementation_status>
+
+</current_prompt>

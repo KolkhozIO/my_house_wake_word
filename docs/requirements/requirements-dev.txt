@@ -1,0 +1,28 @@
+# Development Dependencies
+-r requirements.txt
+
+# Additional Development Tools
+jupyter>=1.0.0
+ipython>=8.14.0
+notebook>=7.0.0
+
+# Code Quality
+pylint>=2.17.0
+bandit>=1.7.0
+safety>=2.3.0
+
+# Performance Profiling
+memory-profiler>=0.61.0
+line-profiler>=4.1.0
+
+# Documentation
+mkdocs>=1.5.0
+mkdocs-material>=9.2.0
+
+# Database (for future use)
+sqlalchemy>=2.0.0
+alembic>=1.12.0
+
+# Async Support
+asyncio>=3.4.3
+aiofiles>=23.2.0

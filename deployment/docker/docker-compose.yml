@@ -1,0 +1,112 @@
+# Docker Compose для microWakeWord
+version: '3.8'
+
+services:
+  # Пайплайн сервис
+  pipeline:
+    build:
+      context: ../../
+      dockerfile: deployment/docker/Dockerfile.pipeline
+    container_name: microwakeword-pipeline
+    volumes:
+      - /home/microWakeWord_data:/home/microwakeword/data:rw
+      - /home/microWakeWord/logs:/home/microwakeword/logs:rw
+      - ./config:/home/microwakeword/app/config:ro
+    environment:
+      - PYTHONPATH=/home/microwakeword/app/src
+      - DATA_DIR=/home/microwakeword/data
+      - LOGS_DIR=/home/microwakeword/logs
+      - PIPELINE_MODE=parallel
+    restart: unless-stopped
+    networks:
+      - microwakeword-network
+
+  # Обучение сервис
+  training:
+    build:
+      context: ../../
+      dockerfile: deployment/docker/Dockerfile.training
+    container_name: microwakeword-training
+    volumes:
+      - /home/microWakeWord_data:/home/microwakeword/data:rw
+      - /home/microWakeWord/models:/home/microwakeword/models:rw
+      - /home/microWakeWord/logs:/home/microwakeword/logs:rw
+      - ./config:/home/microwakeword/app/config:ro
+    environment:
+      - PYTHONPATH=/home/microwakeword/app/src
+      - DATA_DIR=/home/microwakeword/data
+      - MODELS_DIR=/home/microwakeword/models
+      - LOGS_DIR=/home/microwakeword/logs
+      - CUDA_VISIBLE_DEVICES=0
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    restart: unless-stopped
+    networks:
+      - microwakeword-network
+    profiles:
+      - gpu
+
+  # Мониторинг сервис
+  monitoring:
+    image: prom/prometheus:latest
+    container_name: microwakeword-monitoring
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    restart: unless-stopped
+    networks:
+      - microwakeword-network
+
+  # Дашборд сервис
+  dashboard:
+    image: grafana/grafana:latest
+    container_name: microwakeword-dashboard
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./monitoring/grafana:/etc/grafana/provisioning:ro
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    restart: unless-stopped
+    networks:
+      - microwakeword-network
+
+  # Логирование сервис
+  logging:
+    image: fluent/fluent-bit:latest
+    container_name: microwakeword-logging
+    volumes:
+      - /home/microWakeWord/logs:/var/log/microwakeword:ro
+      - ./logging/fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf:ro
+    restart: unless-stopped
+    networks:
+      - microwakeword-network
+
+volumes:
+  prometheus-data:
+    driver: local
+  grafana-data:
+    driver: local
+
+networks:
+  microwakeword-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

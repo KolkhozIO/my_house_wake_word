@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<input_data name="microWakeWord_Input_Data">
+  
+  <!-- ОБРАТНАЯ ССЫЛКА -->
+  <back_reference>
+    <main_file>docs/pipeline_structure.xml</main_file>
+    <section>input_data</section>
+    <description>Детальный анализ входных данных</description>
+  </back_reference>
+  
+  <!-- ВХОДНЫЕ ДАННЫЕ - ПОЛНЫЙ АНАЛИЗ ВСЕХ АУДИО ФАЙЛОВ -->
+  <total_audio_files>66142 WAV files</total_audio_files>
+  
+  <!-- ОСНОВНЫЕ ПОЗИТИВНЫЕ ДАННЫЕ -->
+  <positive_samples_main>
+    <source_directory>/home/microWakeWord_data/positives_final</source_directory>
+    <file_count>3200</file_count>
+    <file_format>WAV</file_format>
+    <total_size>100 MB</total_size>
+    <audio_format>
+      <sample_rate>16000 Hz</sample_rate>
+      <channels>1 (mono)</channels>
+      <bit_depth>16-bit</bit_depth>
+      <encoding>Signed Integer PCM</encoding>
+      <bit_rate>256k</bit_rate>
+      <format>RIFF WAVE</format>
+    </audio_format>
+    <description>Основные позитивные данные для обучения</description>
+    <status>ACTIVE - используется в обучении</status>
+  </positive_samples_main>
+  
+  <!-- ДОПОЛНИТЕЛЬНЫЕ ПОЗИТИВНЫЕ ДАННЫЕ -->
+  <positive_samples_additional>
+    <positives_both>
+      <directory>/home/microWakeWord_data/positives_both</directory>
+      <file_count>3200</file_count>
+      <description>Позитивные данные для обеих фраз wake word</description>
+    </positives_both>
+    <positives_enhanced>
+      <directory>/home/microWakeWord_data/positives_enhanced</directory>
+      <file_count>1200</file_count>
+      <description>Улучшенные позитивные данные с аугментациями</description>
+    </positives_enhanced>
+    <positives_final_backup>
+      <directory>/home/microWakeWord_data/positives_final_backup</directory>
+      <file_count>3200</file_count>
+      <description>Резервная копия позитивных данных</description>
+    </positives_final_backup>
+    <positives_final_temp>
+      <directory>/home/microWakeWord_data/positives_final_temp</directory>
+      <file_count>3352</file_count>
+      <description>Временные позитивные данные</description>
+    </positives_final_temp>
+    <positives_both_temp>
+      <directory>/home/microWakeWord_data/positives_both_temp</directory>
+      <file_count>260</file_count>
+      <description>Временные данные для обеих фраз</description>
+    </positives_both_temp>
+    <positives_real>
+      <directory>/home/microWakeWord_data/positives_real</directory>
+      <file_count>8</file_count>
+      <description>Реальные позитивные данные</description>
+    </positives_real>
+    <reasonable_positives>
+      <directory>/home/microWakeWord_data/reasonable_data/positives_reasonable</directory>
+      <file_count>1000</file_count>
+      <total_size>42 MB</total_size>
+      <audio_format>
+        <sample_rate>22050 Hz</sample_rate>
+        <channels>1 (mono)</channels>
+        <bit_depth>16-bit</bit_depth>
+        <encoding>Signed Integer PCM</encoding>
+        <bit_rate>353k</bit_rate>
+        <format>RIFF WAVE</format>
+      </audio_format>
+      <augmentations>
+        <bandlimit>Present</bandlimit>
+        <codec>Present</codec>
+        <noise_levels>0.1, 0.2, 0.3</noise_levels>
+        <padding>Present (0.15-0.26s)</padding>
+        <pitch_variations>-100, +100 cents</pitch_variations>
+        <reverb>Present</reverb>
+        <tempo_variations>0.9x</tempo_variations>
+      </augmentations>
+      <description>Разумные позитивные данные для тестирования</description>
+    </reasonable_positives>
+  </positive_samples_additional>
+  
+  <!-- ОСНОВНЫЕ НЕГАТИВНЫЕ ДАННЫЕ -->
+  <negative_samples_main>
+    <negatives_real>
+      <source_directory>/home/microWakeWord_data/negatives_real</source_directory>
+      <file_count>12922</file_count>
+      <total_size>3.9 GB</total_size>
+      <description>Реальные негативные данные - автоматический сбор каждые 30 секунд</description>
+      <status>ACTIVE - основной источник негативных данных</status>
+    </negatives_real>
+    
+    <negatives_final>
+      <source_directory>/home/microWakeWord_data/negatives_final</source_directory>
+      <file_count>16000</file_count>
+      <total_size>660 MB</total_size>
+      <audio_format>
+        <sample_rate>22050 Hz</sample_rate>
+        <channels>1 (mono)</channels>
+        <bit_depth>16-bit</bit_depth>
+        <encoding>Signed Integer PCM</encoding>
+        <bit_rate>353k</bit_rate>
+        <format>RIFF WAVE</format>
+      </audio_format>
+      <description>Финальные негативные данные с аугментациями</description>
+      <status>ACTIVE - используется в обучении</status>
+    </negatives_final>
+  </negative_samples_main>
+  
+  <!-- ДОПОЛНИТЕЛЬНЫЕ НЕГАТИВНЫЕ ДАННЫЕ -->
+  <negative_samples_additional>
+    <reasonable_negatives>
+      <directory>/home/microWakeWord_data/reasonable_data/negatives_reasonable</directory>
+      <file_count>9660</file_count>
+      <total_size>442 MB</total_size>
+      <audio_format>
+        <sample_rate>22050 Hz</sample_rate>
+        <channels>1 (mono)</channels>
+        <bit_depth>16-bit</bit_depth>
+        <encoding>Signed Integer PCM</encoding>
+        <bit_rate>353k</bit_rate>
+        <format>RIFF WAVE</format>
+      </audio_format>
+      <augmentations>
+        <bandlimit>Present</bandlimit>
+        <codec>Present</codec>
+        <noise_levels>0.1, 0.2, 0.3</noise_levels>
+        <padding>Present</padding>
+        <pitch_variations>-100, +100 cents</pitch_variations>
+        <reverb>Present</reverb>
+        <tempo_variations>Present</tempo_variations>
+      </augmentations>
+      <description>Разумные негативные данные для тестирования</description>
+    </reasonable_negatives>
+    
+    <hard_negatives_parallel>
+      <directory>/home/microWakeWord_data/hard_negatives_parallel</directory>
+      <file_count>5138</file_count>
+      <description>Параллельно сгенерированные hard negatives</description>
+    </hard_negatives_parallel>
+    
+    <background>
+      <directory>/home/microWakeWord_data/background</directory>
+      <file_count>5920</file_count>
+      <description>Фоновые аудио данные</description>
+    </background>
+    
+    <negatives_both>
+      <directory>/home/microWakeWord_data/negatives_both</directory>
+      <file_count>690</file_count>
+      <description>TTS негативные данные - фонетически похожие фразы (милый том, милый дон, my home, etc.)</description>
+      <quality>Идеально чистые TTS без шума</quality>
+      <status>✅ AVAILABLE - НАЙДЕНЫ!</status>
+    </negatives_both>
+    
+    <hard_negatives>
+      <directory>/home/microWakeWord_data/hard_negatives</directory>
+      <file_count>299</file_count>
+      <description>Hard negative примеры - фонетически похожие фразы</description>
+    </hard_negatives>
+  </negative_samples_additional>
+  
+  <!-- AMBIENT ДАННЫЕ -->
+  <ambient_data>
+    <background_data>
+      <source_directory>/home/microWakeWord_data/background_data</source_directory>
+      <file_count>53</file_count>
+      <file_format>WAV</file_format>
+      <duration_range>60-300 seconds</duration_range>
+      <file_size>2.5GB each</file_size>
+      <description>Длинные аудио записи для реалистичного тестирования FA/h</description>
+      <status>AVAILABLE - используется для ambient фичей</status>
+    </background_data>
+    
+    <background_data_fragments>
+      <source_directory>/home/microWakeWord_data/background_data/fragments</source_directory>
+      <file_count>50</file_count>
+      <description>Фрагменты длинных ambient записей</description>
+    </background_data_fragments>
+  </ambient_data>
+  
+  <!-- ОБЩАЯ СТАТИСТИКА АУДИО ДАННЫХ -->
+  <audio_data_summary>
+    <total_files>66142 WAV files</total_files>
+    <total_size_estimate>~6-8 GB</total_size_estimate>
+    
+    <positive_files_total>
+      <count>14420 files</count>
+      <main_sources>
+        <positives_final>3200</positives_final>
+        <positives_both>3200</positives_both>
+        <positives_final_backup>3200</positives_final_backup>
+        <positives_final_temp>3352</positives_final_temp>
+        <positives_enhanced>1200</positives_enhanced>
+        <reasonable_positives>1000</reasonable_positives>
+        <positives_both_temp>260</positives_both_temp>
+        <positives_real>8</positives_real>
+      </main_sources>
+    </positive_files_total>
+    
+    <negative_files_total>
+      <count>51722 files</count>
+      <main_sources>
+        <negatives_real>12922</negatives_real>
+        <negatives_final>16000</negatives_final>
+        <reasonable_negatives>9660</reasonable_negatives>
+        <background>5920</background>
+        <hard_negatives_parallel>5138</hard_negatives_parallel>
+        <negatives_both>690</negatives_both>
+        <hard_negatives>299</hard_negatives>
+      </main_sources>
+    </negative_files_total>
+    
+    <ambient_files_total>
+      <count>103 files</count>
+      <background_data>53</background_data>
+      <background_fragments>50</background_fragments>
+    </ambient_files_total>
+    
+    <data_imbalance_analysis>
+      <negative_to_positive_ratio>3.59:1 (51722:14420)</negative_to_positive_ratio>
+      <severity>MODERATE - дисбаланс присутствует но не критический</severity>
+      <note>Основной дисбаланс в negatives_real (12922) vs positives_final (3200) = 4.04:1</note>
+    </data_imbalance_analysis>
+    
+    <audio_format_diversity>
+      <sample_rates>
+        <rate_16000>positives_final (3200 files)</rate_16000>
+        <rate_22050>negatives_final, reasonable_data (10660 files)</rate_22050>
+      </sample_rates>
+      <format_consistency>MIXED - разные sample rates требуют нормализации</format_consistency>
+    </audio_format_diversity>
+  </audio_data_summary>
+  
+</input_data>

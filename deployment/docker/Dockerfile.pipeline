@@ -1,0 +1,55 @@
+# Dockerfile для пайплайна microWakeWord
+FROM python:3.9-slim
+
+# Метаданные
+LABEL maintainer="microWakeWord Team"
+LABEL description="microWakeWord Pipeline Container"
+LABEL version="2.0"
+
+# Установка системных зависимостей
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libsndfile1 \
+    libsndfile1-dev \
+    ffmpeg \
+    sox \
+    && rm -rf /var/lib/apt/lists/*
+
+# Создание пользователя для безопасности
+RUN useradd -m -u 1000 microwakeword && \
+    mkdir -p /home/microwakeword/app && \
+    chown -R microwakeword:microwakeword /home/microwakeword
+
+# Установка рабочей директории
+WORKDIR /home/microwakeword/app
+
+# Копирование requirements
+COPY requirements.txt .
+
+# Установка Python зависимостей
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Копирование исходного кода
+COPY src/ ./src/
+COPY config/ ./config/
+COPY scripts/ ./scripts/
+
+# Создание директорий для данных и логов
+RUN mkdir -p /home/microwakeword/data && \
+    mkdir -p /home/microwakeword/logs && \
+    chown -R microwakeword:microwakeword /home/microwakeword/data && \
+    chown -R microwakeword:microwakeword /home/microwakeword/logs
+
+# Переключение на пользователя microwakeword
+USER microwakeword
+
+# Переменные окружения
+ENV PYTHONPATH=/home/microwakeword/app/src
+ENV DATA_DIR=/home/microwakeword/data
+ENV LOGS_DIR=/home/microwakeword/logs
+
+# Точка входа
+ENTRYPOINT ["python", "-m", "src.management.parallel_pipeline_manager"]
+
+# По умолчанию запуск параллельного пайплайна
+CMD ["--mode", "parallel", "--config", "config/base/pipeline.yaml"]

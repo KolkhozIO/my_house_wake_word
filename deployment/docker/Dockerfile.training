@@ -1,0 +1,70 @@
+# Dockerfile для обучения моделей microWakeWord
+FROM tensorflow/tensorflow:2.13.0-gpu
+
+# Метаданные
+LABEL maintainer="microWakeWord Team"
+LABEL description="microWakeWord Training Container"
+LABEL version="2.0"
+
+# Установка системных зависимостей
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libsndfile1 \
+    libsndfile1-dev \
+    ffmpeg \
+    sox \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Создание пользователя для безопасности
+RUN useradd -m -u 1000 microwakeword && \
+    mkdir -p /home/microwakeword/app && \
+    chown -R microwakeword:microwakeword /home/microwakeword
+
+# Установка рабочей директории
+WORKDIR /home/microwakeword/app
+
+# Копирование requirements
+COPY requirements.txt .
+
+# Установка дополнительных Python зависимостей
+RUN pip install --no-cache-dir -r requirements.txt && \
+    pip install --no-cache-dir \
+    tensorflow-gpu \
+    tensorflow-lite \
+    librosa \
+    soundfile \
+    matplotlib \
+    seaborn \
+    scikit-learn \
+    pandas \
+    numpy
+
+# Копирование исходного кода
+COPY src/ ./src/
+COPY config/ ./config/
+COPY tools/ ./tools/
+
+# Создание директорий для данных, моделей и логов
+RUN mkdir -p /home/microwakeword/data && \
+    mkdir -p /home/microwakeword/models && \
+    mkdir -p /home/microwakeword/logs && \
+    chown -R microwakeword:microwakeword /home/microwakeword/data && \
+    chown -R microwakeword:microwakeword /home/microwakeword/models && \
+    chown -R microwakeword:microwakeword /home/microwakeword/logs
+
+# Переключение на пользователя microwakeword
+USER microwakeword
+
+# Переменные окружения
+ENV PYTHONPATH=/home/microwakeword/app/src
+ENV DATA_DIR=/home/microwakeword/data
+ENV MODELS_DIR=/home/microwakeword/models
+ENV LOGS_DIR=/home/microwakeword/logs
+ENV CUDA_VISIBLE_DEVICES=0
+
+# Точка входа
+ENTRYPOINT ["python", "-m", "src.pipeline.training.use_original_library_correctly"]
+
+# По умолчанию обучение средней модели
+CMD ["--config", "config/models/medium.yaml", "--data-dir", "/home/microwakeword/data"]

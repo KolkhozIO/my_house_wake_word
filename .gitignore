@@ -49,6 +49,15 @@ Thumbs.db
 !models/trained_model/*.h5
 !models/microwakeword_model/*.tflite
 
+# Exclude large files and directories
+docs/models/*.tflite
+docs/models/*.json
+backups/
+config/.esphome/
+.esphome/
+logs/
+*.log
+
 # Data directories (large audio files)
 positives_moy_dom/
 positives_moy_dom_aug/

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pipeline_fixes name="microWakeWord_Pipeline_Fixes">
+  
+  <!-- ОБРАТНАЯ ССЫЛКА -->
+  <back_reference>
+    <main_file>docs/pipeline_structure.xml</main_file>
+    <section>pipeline_fixes</section>
+    <description>Детальная версия исправлений пайплайна</description>
+  </back_reference>
+  
+  <!-- ИСПРАВЛЕНИЯ ПАЙПЛАЙНА -->
+  <fix_1>
+    <name>ИСПРАВЛЕНИЕ ЛОГИКИ ПРОВЕРКИ ФАЙЛОВ</name>
+    <problem>Неправильная проверка существующих файлов - сравнивал семплы с файлами</problem>
+    <solution>Исправлена логика check_existing_samples для правильного подсчета обработанных исходных файлов</solution>
+    <files_changed>
+      <file>generate_spectrograms_background_data.py</file>
+      <file>generate_spectrograms_negatives_real.py</file>
+    </files_changed>
+    <status>✅ ИСПРАВЛЕНО</status>
+  </fix_1>
+  
+  <fix_2>
+    <name>ДОБАВЛЕНИЕ ПРОПУСКНОЙ ЛОГИКИ</name>
+    <problem>Скрипты пытались перегенерировать уже обработанные файлы</problem>
+    <solution>Добавлена логика пропуска уже обработанных исходных файлов</solution>
+    <implementation>
+      <skip_logic>Определение обработанных файлов по именам семплов</skip_logic>
+      <continue_from_stop>Продолжение с момента остановки</continue_from_stop>
+      <performance>Быстрое завершение если все файлы уже обработаны</performance>
+    </implementation>
+    <status>✅ ИСПРАВЛЕНО</status>
+  </fix_2>
+  
+  <fix_3>
+    <name>РАЗДЕЛЕНИЕ НА НЕЗАВИСИМЫЕ ЭТАПЫ</name>
+    <problem>Один большой скрипт обрабатывал все источники последовательно</problem>
+    <solution>Созданы отдельные скрипты для каждого источника данных</solution>
+    <new_scripts>
+      <script>generate_spectrograms_negatives_real.py</script>
+      <script>generate_spectrograms_background_data.py</script>
+    </new_scripts>
+    <new_tasks>
+      <task>generate_negatives_real</task>
+      <task>generate_background_data</task>
+    </new_tasks>
+    <status>✅ ИСПРАВЛЕНО</status>
+  </fix_3>
+  
+  <fix_4>
+    <name>ОБНОВЛЕНИЕ СИСТЕМЫ УПРАВЛЕНИЯ ЗАДАЧАМИ</name>
+    <problem>manage_tasks.sh не поддерживал новые задачи</problem>
+    <solution>Добавлены новые задачи в manage_tasks.sh</solution>
+    <commands_added>
+      <command>./manage_tasks.sh start generate_negatives_real</command>
+      <command>./manage_tasks.sh start generate_background_data</command>
+    </commands_added>
+    <status>✅ ИСПРАВЛЕНО</status>
+  </fix_4>
+  
+</pipeline_fixes>

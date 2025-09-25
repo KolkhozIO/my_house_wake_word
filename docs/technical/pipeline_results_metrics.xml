@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<results_and_metrics name="microWakeWord_Results_Metrics">
+  
+  <!-- ОБРАТНАЯ ССЫЛКА -->
+  <back_reference>
+    <main_file>docs/pipeline_structure.xml</main_file>
+    <section>models_and_results</section>
+    <description>Детальные результаты и метрики</description>
+  </back_reference>
+  
+  <!-- МОДЕЛИ И РЕЗУЛЬТАТЫ -->
+  <models_and_results>
+    <trained_models>
+      <path>/home/microWakeWord_data/trained_models/</path>
+      <purpose>Директория для сохранения обученных моделей</purpose>
+      <status>ACTIVE</status>
+    </trained_models>
+    
+    <piper_models>
+      <path>/home/microWakeWord_data/piper_models/</path>
+      <purpose>Модели Piper TTS для генерации аудио</purpose>
+      <status>AVAILABLE</status>
+    </piper_models>
+  </models_and_results>
+  
+  <!-- КОНФИГУРАЦИОННЫЕ ФАЙЛЫ -->
+  <config_files>
+    <training_parameters>/home/microWakeWord_data/training_parameters.yaml</training_parameters>
+    <larger_model_config>/home/microWakeWord_data/larger_model_training_parameters.yaml</larger_model_config>
+    <small_model_config>/home/microWakeWord_data/small_training_config.yaml</small_model_config>
+    <model_json>/home/microWakeWord_data/model.json</model_json>
+    <model_tflite>/home/microWakeWord_data/model.tflite</model_tflite>
+    <purpose>Конфигурационные файлы и готовые модели</purpose>
+    <status>ACTIVE</status>
+  </config_files>
+  
+  <!-- ТЕКУЩИЙ СТАТУС ВЫПОЛНЕНИЯ -->
+  <current_execution_status>
+    <task_id>generate_spectrograms_1758368352</task_id>
+    <pid>672718</pid>
+    <status>IN_PROGRESS</status>
+    <start_time>2025-09-20T14:39:15</start_time>
+    <critical_issues>
+      <performance_issue>
+        <issue>Критически медленная обработка ambient данных</issue>
+        <symptoms>150 секунд на файл, ожидается 2-3 часа завершения</symptoms>
+        <possible_causes>Большие файлы (2.5GB), неоптимизированная обработка</possible_causes>
+        <status>КРИТИЧЕСКАЯ ПРОБЛЕМА</status>
+      </performance_issue>
+      <cuda_issue>
+        <issue>CUDA ошибки - обучение на CPU</issue>
+        <symptoms>CUDA error: Failed call to cuInit: UNKNOWN ERROR (303)</symptoms>
+        <possible_causes>Проблемы с CUDA драйверами или конфигурацией</possible_causes>
+        <status>ТРЕБУЕТ ИСПРАВЛЕНИЯ</status>
+      </cuda_issue>
+      <model_overfitting>
+        <issue>Модель переобучена на TTS данных (100% точность)</issue>
+        <symptoms>Accuracy=100%, что НЕ НОРМАЛЬНО для wake word</symptoms>
+        <possible_causes>Обучение только на синтетических TTS данных</possible_causes>
+        <status>ТРЕБУЕТ ПЕРЕОБУЧЕНИЯ</status>
+      </model_overfitting>
+    </critical_issues>
+    <next_steps>
+      <step>Дождаться завершения генерации спектрограмм (2-3 часа)</step>
+      <step>Оптимизировать обработку больших ambient файлов</step>
+      <step>Исправить CUDA конфигурацию</step>
+      <step>Переобучить модель на реальных данных</step>
+    </next_steps>
+  </current_execution_status>
+  
+  <!-- АНАЛИЗ ИСПОЛЬЗОВАНИЯ ДАННЫХ В ПАЙПЛАЙНЕ -->
+  <pipeline_data_usage_analysis>
+    <metadata>
+      <analysis_date>2025-01-20T18:00:00Z</analysis_date>
+      <total_available_files>66142 WAV files</total_available_files>
+      <analysis_scope>Проверка корректности использования всех данных в пайплайне</analysis_scope>
+    </metadata>
+    
+    <current_pipeline_usage>
+      <positive_data_usage>
+        <used_source>positives_final</used_source>
+        <used_files>3200 files</used_files>
+        <available_files>14420 files</available_files>
+        <usage_percentage>22%</usage_percentage>
+        <audio_format>16kHz, 256k bit rate</audio_format>
+        <status>ACTIVE - используется в обучении</status>
+      </positive_data_usage>
+      
+      <negative_data_usage>
+        <used_source>negatives_real</used_source>
+        <used_files>12922 files</used_files>
+        <available_files>51722 files</available_files>
+        <usage_percentage>25%</usage_percentage>
+        <audio_format>22kHz, 353k bit rate</audio_format>
+        <status>ACTIVE - используется в обучении</status>
+      </negative_data_usage>
+      
+      <unused_data_sources>
+        <negatives_final>
+          <files>16000 files (660 MB)</files>
+          <reason>Не используется в текущем пайплайне</reason>
+          <potential>Может улучшить качество модели</potential>
+        </negatives_final>
+        <positives_both>
+          <files>3200 files</files>
+          <reason>Не используется в текущем пайплайне</reason>
+          <potential>Дополнительные позитивные примеры</potential>
+        </positives_both>
+        <positives_enhanced>
+          <files>1200 files</files>
+          <reason>Не используется в текущем пайплайне</reason>
+          <potential>Улучшенные позитивные данные</potential>
+        </positives_enhanced>
+      </unused_data_sources>
+    </current_pipeline_usage>
+  </pipeline_data_usage_analysis>
+  
+  <!-- ПОЛНЫЙ АНАЛИЗ ВСЕХ ПУТЕЙ -->
+  <complete_paths_analysis>
+    <timestamp>2025-09-22T15:00:00</timestamp>
+    <total_paths_analyzed>133</total_paths_analyzed>
+    <categories>
+      <raw_audio_positives>
+        <count>10 путей</count>
+        <status>✅ ВСЕ СУЩЕСТВУЮТ</status>
+        <total_files>~20,000 WAV файлов</total_files>
+        <key_directories>
+          <positives_final>3200 файлов ✅</positives_final>
+          <positives_both>3200 файлов ✅</positives_both>
+          <positives_enhanced>1200 файлов ✅</positives_enhanced>
+          <positives_real>НЕ СУЩЕСТВУЕТ ❌</positives_real>
+        </key_directories>
+      </raw_audio_positives>
+      
+      <raw_audio_negatives>
+        <count>12 путей</count>
+        <status>✅ ВСЕ СУЩЕСТВУЮТ</status>
+        <total_files>~200,000 WAV файлов</total_files>
+        <key_directories>
+          <negatives_real>17,508 файлов ✅</negatives_real>
+          <negatives_final>16,000 файлов ✅</negatives_final>
+          <negatives_real_sampled>319,032 файлов ✅</negatives_real_sampled>
+          <hard_negatives_parallel>5,138 файлов ✅</hard_negatives_parallel>
+        </key_directories>
+      </raw_audio_negatives>
+      
+      <raw_audio_background>
+        <count>4 пути</count>
+        <status>✅ ВСЕ СУЩЕСТВУЮТ</status>
+        <total_files>~530,000 WAV файлов</total_files>
+        <key_directories>
+          <background_data>53 файла ✅</background_data>
+          <background_data_sampled>521,594 файла ✅</background_data_sampled>
+          <background>5,920 файлов ✅</background>
+        </key_directories>
+      </raw_audio_background>
+      
+      <generated_features>
+        <count>11 путей</count>
+        <status>⚠️ СМЕШАННЫЙ</status>
+        <critical_issue>generated_features_negative ПУСТАЯ!</critical_issue>
+        <working_directories>
+          <generated_features>6 файлов данных ✅</generated_features>
+          <generated_features_negatives_real>6 файлов данных ✅</generated_features_negatives_real>
+          <generated_features_negatives_final>6 файлов данных ✅</generated_features_negatives_final>
+          <generated_features_negatives_both>6 файлов данных ✅</generated_features_negatives_both>
+        </working_directories>
+      </generated_features>
+    </categories>
+  </complete_paths_analysis>
+  
+</results_and_metrics>

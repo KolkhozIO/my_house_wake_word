@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<critical_rules name="microWakeWord_Critical_Rules">
+  
+  <!-- ОБРАТНАЯ ССЫЛКА -->
+  <back_reference>
+    <main_file>docs/pipeline_structure.xml</main_file>
+    <section>critical_rules</section>
+    <description>Детальная версия критических правил пайплайна</description>
+  </back_reference>
+  
+  <!-- КРИТИЧЕСКИЕ ПРАВИЛА ПАЙПЛАЙНА -->
+  <rule_1>
+    <name>ПРАВИЛО СЕМПЛИРОВАНИЯ НА ЛЕТУ</name>
+    <description>ВСЕГДА СЕМПЛИРУЙ БОЛЬШИЕ ФАЙЛЫ НА ЛЕТУ ВМЕСТО ИСКЛЮЧЕНИЯ!</description>
+    <implementation>max_clip_duration_s=1.5 во всех скриптах</implementation>
+    <status>✅ РЕАЛИЗОВАНО</status>
+  </rule_1>
+  
+  <rule_2>
+    <name>ПРАВИЛО МАКСИМАЛЬНОГО ПОКРЫТИЯ</name>
+    <description>ВСЕГДА ИСПОЛЬЗУЙ ВЕСЬ ФАЙЛ С ПЕРЕКРЫВАЮЩИМИСЯ СЕМПЛАМИ!</description>
+    <requirements>
+      <coverage_principle>МАКСИМАЛЬНОЕ покрытие всего файла</coverage_principle>
+      <step_size>0.5 секунды между семплами (перекрытие 1 секунды)</step_size>
+      <sample_duration>1.5 секунды каждый семпл</sample_duration>
+      <ten_second_files>18 семплов из 10-секундного файла (полное покрытие)</ten_second_files>
+      <hourly_files>7200 семплов из часового файла (полное покрытие)</hourly_files>
+      <max_samples_per_file>10000 семплов максимум из одного файла</max_samples_per_file>
+    </requirements>
+    <results>
+      <total_samples>6,447,619 семплов (увеличение в 49 раз!)</total_samples>
+      <negatives_real_samples>319,032 семплов (вместо 17,724) ✅ ЗАВЕРШЕНО</negatives_real_samples>
+      <background_data_samples>6,099,550 семплов (вместо 84,716) 🔄 В ПРОЦЕССЕ</background_data_samples>
+      <current_status>
+        <negatives_real>✅ Полностью обработан (17,724 файла → 319,032 семпла)</negatives_real>
+        <background_data>🔄 Обрабатывается (20/103 файлов → 196,933 семпла, осталось 83 файла)</background_data>
+      </current_status>
+    </results>
+    <status>✅ РЕАЛИЗОВАНО</status>
+  </rule_2>
+  
+  <rule_3>
+    <name>ПРАВИЛО УНИФИКАЦИИ ПАРАМЕТРОВ</name>
+    <description>ВСЕ СКРИПТЫ ДОЛЖНЫ ИСПОЛЬЗОВАТЬ ОДИНАКОВЫЕ ПАРАМЕТРЫ!</description>
+    <parameters>
+      <max_clip_duration_s>1.5</max_clip_duration_s>
+      <augmentation_duration_s>1.5</augmentation_duration_s>
+      <step_ms>4.42</step_ms>
+      <spectrogram_length>272</spectrogram_length>
+      <slide_frames>1</slide_frames>
+    </parameters>
+    <status>✅ РЕАЛИЗОВАНО</status>
+  </rule_3>
+  
+  <rule_4>
+    <name>ПРАВИЛО НЕ ТЕРЯТЬ ДАННЫЕ</name>
+    <description>НЕ ТЕРЯЙ ДАННЫЕ - СЕМПЛИРУЙ МАКСИМАЛЬНО!</description>
+    <implementation>Использовать все доступные источники данных с семплированием</implementation>
+    <status>✅ РЕАЛИЗОВАНО</status>
+  </rule_4>
+  
+  <rule_5>
+    <name>ПРАВИЛО ПРОВЕРКИ СУЩЕСТВУЮЩИХ ФАЙЛОВ</name>
+    <description>НЕ ПЕРЕГЕНЕРИРУЙ УЖЕ ОБРАБОТАННЫЕ ФАЙЛЫ!</description>
+    <implementation>
+      <check_logic>Проверять количество обработанных исходных файлов, а не семплов</check_logic>
+      <skip_processed>Пропускать уже обработанные исходные файлы</skip_processed>
+      <continue_from_stop>Продолжать с момента остановки</continue_from_stop>
+    </implementation>
+    <status>✅ РЕАЛИЗОВАНО</status>
+  </rule_5>
+  
+  <rule_6>
+    <name>ПРАВИЛО РАЗДЕЛЕНИЯ ЭТАПОВ</name>
+    <description>РАЗДЕЛЯЙ ПАЙПЛАЙН НА НЕЗАВИСИМЫЕ ЭТАПЫ!</description>
+    <implementation>
+      <separate_tasks>Отдельные задачи для negatives_real и background_data</separate_tasks>
+      <independent_execution>Каждый этап можно запускать независимо</independent_execution>
+      <fault_tolerance>Ошибка в одном этапе не влияет на другие</fault_tolerance>
+    </implementation>
+    <status>✅ РЕАЛИЗОВАНО</status>
+  </rule_6>
+  
+  <rule_7>
+    <name>ПРАВИЛО УНИКАЛЬНЫХ ИМЕН МОДЕЛЕЙ</name>
+    <description>Каждая новая модель должна генерироваться с уникальным именем, отражающим текущие изменения</description>
+    <requirements>
+      <unique_naming>Модели должны иметь уникальные имена с временными метками</unique_naming>
+      <change_tracking>Имя должно отражать основные изменения в данных или параметрах</change_tracking>
+      <comment_system>При каждом запуске указывается комментарий про изменения</comment_system>
+      <timestamp_format>YYYY-MM-DD_HH-MM-SS</timestamp_format>
+      <naming_pattern>model_[timestamp]_[description].tflite</naming_pattern>
+    </requirements>
+    <status>✅ РЕАЛИЗОВАНО</status>
+  </rule_7>
+  
+</critical_rules>

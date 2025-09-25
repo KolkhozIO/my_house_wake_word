@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<task_management_system name="microWakeWord_Task_Management">
+  
+  <!-- ОБРАТНАЯ ССЫЛКА -->
+  <back_reference>
+    <main_file>docs/pipeline_structure.xml</main_file>
+    <section>task_management_system</section>
+    <description>Детальная система управления задачами</description>
+  </back_reference>
+  
+  <main_script>
+    <name>manage_tasks.sh</name>
+    <purpose>Основной скрипт для управления задачами пайплайна</purpose>
+    <functions>
+      <start>Запуск задач в фоновом режиме</start>
+      <stop>Остановка запущенных задач</stop>
+      <status>Проверка статуса всех задач</status>
+      <list>Список доступных задач</list>
+    </functions>
+    <status>ACTIVE - используется для управления пайплайном</status>
+  </main_script>
+  
+  <python_manager>
+    <name>task_manager.py</name>
+    <purpose>Python модуль для управления задачами</purpose>
+    <status>ACTIVE - поддерживает manage_tasks.sh</status>
+  </python_manager>
+  
+  <available_tasks>
+    <task>generate_data</task>
+    <task>augmentations</task>
+    <task>balance_dataset</task>
+    <task>train_model</task>
+    <task>train_larger</task>
+    <task>generate_hard_negatives</task>
+    <task>generate_enhanced_positives</task>
+    <task>generate_background</task>
+    <task>generate_hard_negatives_parallel</task>
+    <task>fix_sample_rate_to_16000</task>
+    <task>generate_negatives_real</task>
+    <task>generate_background_data</task>
+  </available_tasks>
+  
+  <!-- НОВАЯ ЗАДАЧА: КОНВЕРТАЦИЯ SAMPLE RATE -->
+  <sample_rate_conversion_task>
+    <name>fix_sample_rate_to_16000</name>
+    <script>fix_sample_rate_to_16000.py</script>
+    <purpose>Конвертация всех аудио файлов к частоте дискретизации 16000 Hz</purpose>
+    <method>librosa + soundfile для высококачественной конвертации</method>
+    <target_sample_rate>16000 Hz</target_sr>
+    <features>
+      <parallel_processing>Многопоточная обработка до 8 потоков</parallel_processing>
+      <backup_system>Автоматическое создание бэкапов для критических данных</backup_system>
+      <progress_monitoring>Детальный мониторинг прогресса и статистики</progress_monitoring>
+      <error_handling>Устойчивая обработка ошибок с продолжением работы</error_handling>
+      <format_support>Поддержка WAV, MP3, FLAC, M4A, OGG</format_support>
+    </features>
+    <directories_processed>
+      <positives_final>Позитивные данные (финальные) - с бэкапом</positives_final>
+      <positives_both>Позитивные данные (обе фразы) - с бэкапом</positives_both>
+      <positives_enhanced>Улучшенные позитивные данные - с бэкапом</positives_enhanced>
+      <negatives_final>Негативные данные (финальные) - без бэкапа</negatives_final>
+      <negatives_real>Реальные негативные данные - без бэкапа</negatives_real>
+      <negatives_both>Негативные данные (обе фразы) - без бэкапа</negatives_both>
+      <hard_negatives>Hard negatives - без бэкапа</hard_negatives>
+      <background_data>Фоновые данные - без бэкапа</background_data>
+    </directories_processed>
+    <usage>
+      <command>./manage_tasks.sh start fix_sample_rate_to_16000</command>
+      <monitoring>./manage_tasks.sh logs fix_sample_rate_to_16000</monitoring>
+      <status>./manage_tasks.sh status</status>
+    </usage>
+    <status>READY - новая задача добавлена в систему управления</status>
+  </sample_rate_conversion_task>
+  
+  <!-- АВТОМАТИЧЕСКИЕ ЗАДАЧИ (CRONTAB) -->
+  <automated_tasks>
+    <cron_jobs>
+      <negative_samples_collection>
+        <schedule>Каждую минуту и каждые 30 секунд</schedule>
+        <command>/root/microWakeWord/copy_negative_samples.sh</command>
+        <purpose>Автоматический сбор реальных негативных аудио данных</purpose>
+        <source>/root/sipka/runtime/*_*wav</source>
+        <target>/home/microWakeWord_data/negatives_real/</target>
+        <functionality>
+          <copy_files>Копирует новые аудио файлы с timestamp</copy_files>
+          <avoid_duplicates>Добавляет timestamp к именам файлов</avoid_duplicates>
+          <logging>Логирует количество скопированных файлов</logging>
+          <statistics>Показывает общее количество негативных файлов</statistics>
+        </functionality>
+        <status>ACTIVE - работает каждые 30 секунд</status>
+        <files_found>last10s_right.wav, last10s_left.wav</files_found>
+      </negative_samples_collection>
+    </cron_jobs>
+  </automated_tasks>
+  
+</task_management_system>
