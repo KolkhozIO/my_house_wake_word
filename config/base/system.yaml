@@ -1,0 +1,40 @@
+# Базовые системные настройки
+system:
+  # Пути
+  paths:
+    data_dir: "/home/microWakeWord_data"
+    models_dir: "/home/microWakeWord_data/models"
+    logs_dir: "/home/microWakeWord/logs"
+    temp_dir: "/home/microWakeWord/temp"
+    
+  # Логирование
+  logging:
+    level: "INFO"
+    format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    file_rotation: true
+    max_file_size: "10MB"
+    backup_count: 5
+    
+  # Мониторинг
+  monitoring:
+    enabled: true
+    metrics_interval: 10
+    health_check_interval: 30
+    alert_thresholds:
+      cpu_usage: 80
+      memory_usage: 85
+      disk_usage: 90
+      
+  # Безопасность
+  security:
+    log_sensitive_data: false
+    encrypt_logs: false
+    access_control: true
+    
+  # Производительность
+  performance:
+    parallel_processing: true
+    max_workers: 72
+    memory_limit_gb: 32
+    cache_enabled: true
+    cache_size_mb: 1024

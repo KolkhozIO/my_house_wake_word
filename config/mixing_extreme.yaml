@@ -1,0 +1,32 @@
+# Конфигурация экстремального смешивания TTS с шумом
+variant: extreme
+name: "Экстремальный"
+description: "Максимальное добавление шума для экстремальных условий"
+
+parameters:
+  noise_ratio: 0.3         # 30% шума, 70% TTS
+  snr_range: [5, 15]       # очень низкий SNR (5-15 dB)
+  random_seed: 42
+  preserve_duration: true
+  normalize_output: true
+
+sources:
+  positives:
+    input: "/home/microWakeWord_data/positives_final/"
+    output: "/home/microWakeWord_data/positives_with_noise_extreme/"
+  negatives:
+    input: "/home/microWakeWord_data/negatives_both/"
+    output: "/home/microWakeWord_data/negatives_with_noise_extreme/"
+  hard_negatives:
+    input: "/home/microWakeWord_data/hard_negatives/"
+    output: "/home/microWakeWord_data/hard_negatives_with_noise_extreme/"
+  hard_negatives_parallel:
+    input: "/home/microWakeWord_data/hard_negatives_parallel/"
+    output: "/home/microWakeWord_data/hard_negatives_parallel_with_noise_extreme/"
+
+noise_source: "/home/microWakeWord_data/negatives_real/"
+
+expected_results:
+  quality: "Максимальная реалистичность с сильным шумом"
+  use_case: "Для экстремально шумных условий"
+  trade_off: "Может значительно снизить точность на чистых данных"

@@ -1,0 +1,47 @@
+# Базовые настройки обучения
+training:
+  # Архитектура модели
+  architecture:
+    type: "MixedNet"
+    input_shape: [1, 1, 40]  # Streaming inference для ESPHome
+    output_classes: 1        # Бинарная классификация
+    
+  # Параметры обучения
+  parameters:
+    epochs: 100
+    batch_size: 32
+    learning_rate: 0.001
+    optimizer: "adam"
+    
+  # Регуляризация
+  regularization:
+    dropout: 0.3
+    l2_regularization: 0.001
+    spec_augment: true
+    spec_augment_params:
+      time_masks: 2
+      freq_masks: 2
+      time_mask_size: 10
+      freq_mask_size: 5
+      
+  # Веса классов
+  class_weights:
+    positive: 1.0
+    negative: 3.0
+    
+  # Квантование
+  quantization:
+    enabled: true
+    type: "int8"
+    representative_dataset_size: 100
+    
+  # Валидация
+  validation:
+    split: 0.2
+    metrics: ["accuracy", "precision", "recall", "f1", "auc"]
+    
+  # Ранняя остановка
+  early_stopping:
+    enabled: true
+    patience: 10
+    min_delta: 0.001

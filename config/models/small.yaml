@@ -1,0 +1,23 @@
+# Конфигурация маленькой модели
+model:
+  name: "microWakeWord Small"
+  size: "small"
+  target_size_kb: 50
+  
+  architecture:
+    type: "MixedNet"
+    layers: 3
+    hidden_units: 64
+    
+  training:
+    epochs: 50
+    batch_size: 16
+    learning_rate: 0.002
+    
+  quantization:
+    enabled: true
+    type: "int8"
+    
+  deployment:
+    target_device: "ESP32"
+    tensor_arena_size: 500000

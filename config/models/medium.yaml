@@ -1,0 +1,23 @@
+# Конфигурация средней модели
+model:
+  name: "microWakeWord Medium"
+  size: "medium"
+  target_size_kb: 141
+  
+  architecture:
+    type: "MixedNet"
+    layers: 5
+    hidden_units: 128
+    
+  training:
+    epochs: 100
+    batch_size: 32
+    learning_rate: 0.001
+    
+  quantization:
+    enabled: true
+    type: "int8"
+    
+  deployment:
+    target_device: "ESP32S3"
+    tensor_arena_size: 2000000

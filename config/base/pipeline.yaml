@@ -1,0 +1,46 @@
+# Базовые настройки пайплайна microWakeWord
+pipeline:
+  name: "microWakeWord Pipeline"
+  version: "2.0"
+  
+  # Общие настройки
+  general:
+    wake_word: "милый дом / любимый дом"
+    language: "ru"
+    sample_rate: 16000
+    duration: 0.5
+    
+  # Настройки генерации данных
+  data_generation:
+    quick_mode: true
+    tts_enabled: false
+    synthetic_data: true
+    parallel_workers: 72
+    
+  # Настройки аугментации
+  augmentation:
+    enabled: true
+    tempo_range: [0.9, 1.1]
+    pitch_range: [-1, 1]
+    volume_range: [0.4, 2.0]
+    noise_levels: [0.01, 0.05, 0.1]
+    
+  # Настройки балансировки
+  balancing:
+    negative_ratio: 50
+    hard_negatives: true
+    background_data: true
+    
+  # Настройки обучения
+  training:
+    architecture: "MixedNet"
+    model_size: "medium"
+    quantization: true
+    spec_augment: true
+    negative_class_weight: 3.0
+    
+  # Настройки ресурсов
+  resources:
+    max_cpu_cores: 40
+    max_memory_gb: 11
+    timeout_minutes: 60

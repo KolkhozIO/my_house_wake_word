@@ -1,0 +1,23 @@
+# Настройки для разработки
+environment: "development"
+
+# Переопределения для разработки
+pipeline:
+  data_generation:
+    quick_mode: true
+    parallel_workers: 8
+    
+  training:
+    epochs: 10
+    batch_size: 16
+    
+system:
+  logging:
+    level: "DEBUG"
+    
+  monitoring:
+    enabled: false
+    
+  performance:
+    max_workers: 8
+    memory_limit_gb: 8

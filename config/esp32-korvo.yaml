@@ -1,0 +1,545 @@
+substitutions:
+  name: esp32-korvo
+  friendly_name: ESP32_korvo
+
+
+esphome:
+  name: esp32-korvo
+  min_version: 2023.11.0
+  platformio_options:
+    board_build.flash_mode: dio
+  on_boot:
+    - priority: -100
+      then:
+        - light.turn_on:
+            id: led_ring
+            effect: power
+        - delay: 200ms  # Уменьшено с 1s
+        - wait_until:
+            condition:
+              wifi.connected:
+            timeout: 30s  # Добавлен таймаут
+        - light.turn_on:
+            id: led_ring
+            effect: Working
+            red: 0%
+            blue: 100%
+            green: 0%
+        - wait_until:
+            condition:
+              api.connected:
+            timeout: 30s  # Добавлен таймаут
+        - light.turn_on:
+            id: led_ring
+            effect: pulse
+            red: 0%
+            blue: 0%
+            green: 100%
+        - micro_wake_word.start
+        - output.turn_on: pa_ctrl
+        - script.execute: reset_led
+
+esp32:
+  board: esp32s3box
+  framework:
+    type: esp-idf
+    version: recommended
+  flash_size: 16MB
+
+psram:
+  mode: octal
+  speed: 80MHz
+
+logger:
+  level: DEBUG
+  baud_rate: 115200
+  hardware_uart: UART0
+api:
+  encryption:
+    key: "ikBEb4vEpLlJTYnyJm76bzVIPwdTCWCylyxhxsBcILA="
+
+ota:
+  - platform: esphome
+    password: "1aaf73a9260eded6ffb8c7014cfb4b20"
+
+text_sensor:
+  - platform: wifi_info
+    ip_address:
+      name: "$ IP Address"
+
+time:
+  platform: homeassistant
+  id: homeassistant_time
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  use_address: 192.168.0.109
+
+  ap:
+    ssid: "Esphome-Web-E19E00"
+    password: "xNPyWNpMqMlo"
+
+i2c:
+  id: bus_i2c
+  sda: GPIO1
+  scl: GPIO2
+  scan: true
+  sda_pullup_enabled: true
+  scl_pullup_enabled: true
+  frequency: 400kHz
+
+output:
+  - platform: gpio
+    id: pa_ctrl
+    pin: GPIO38
+
+audio_adc:
+  - platform: es7210
+    id: es7210_adc
+    bits_per_sample: 16bit
+    sample_rate: 16000
+    mic_gain: "37.5db"
+
+audio_dac:
+  - platform: es8311
+    id: es8311_dac
+    use_mclk: true 
+    address: 0x18
+    bits_per_sample: 16bit
+    sample_rate: 16000
+    i2c_id: bus_i2c 
+
+i2s_audio:
+  - id: codec
+    i2s_lrclk_pin: GPIO41
+    i2s_bclk_pin: GPIO40
+    i2s_mclk_pin: GPIO42
+  - id: mic_adc
+    i2s_lrclk_pin: GPIO9
+    i2s_bclk_pin: GPIO10
+    i2s_mclk_pin: GPIO20
+
+speaker:
+  - platform: i2s_audio
+    id: external_speaker
+    dac_type: external
+    i2s_audio_id: codec
+    i2s_dout_pin: GPIO39
+    sample_rate: 16000
+    bits_per_sample: 16bit
+    channel: left
+    buffer_duration: 200ms
+    audio_dac: es8311_dac
+
+  - id: mixing_speaker
+    platform: mixer
+    output_speaker: external_speaker
+    source_speakers:
+      - id: announcement_mixing_input
+      - id: media_mixing_input
+
+  - platform: resampler
+    id: announcement_resampling_speaker
+    output_speaker: announcement_mixing_input
+    sample_rate: 16000 
+    
+  - platform: resampler
+    id: media_resampling_speaker
+    output_speaker: media_mixing_input
+    sample_rate: 16000 
+
+microphone:
+  - platform: i2s_audio
+    id: external_mic
+    adc_type: external
+    i2s_audio_id: mic_adc
+    i2s_din_pin: GPIO11
+    correct_dc_offset: false
+    pdm: false
+
+media_player:
+  - platform: speaker
+    name: "Speaker Media Player"
+    id: speaker_media_player_id
+    buffer_size: 4000000
+    task_stack_in_psram: true
+    announcement_pipeline:
+      #speaker: external_speaker
+      speaker: announcement_mixing_input
+    media_pipeline:
+      speaker: media_mixing_input
+    on_announcement:
+      - mixer_speaker.apply_ducking:
+          id: media_mixing_input
+          decibel_reduction: 20
+          duration: 0.0s
+    on_state:
+      if:
+        condition:
+          and:
+            #- switch.is_off: timer_ringing
+            - not:
+                voice_assistant.is_running:
+            - not:
+                media_player.is_announcing:
+        then:
+          - mixer_speaker.apply_ducking:
+              id: media_mixing_input
+              decibel_reduction: 0
+              duration: 0.2s
+    
+
+# =============== MICRO WAKE WORD ===============
+micro_wake_word:
+  id: mww
+  stop_after_detection: true
+  microphone:
+    microphone: external_mic
+    channels: 0
+    gain_factor: 4
+  models:
+    - model: original_library_model.json
+      id: ru_trained_model
+      probability_cutoff: 0.95
+      sliding_window_size: 5
+  on_wake_word_detected:
+    - delay: 300ms
+    - voice_assistant.start:
+        wake_word: ru_trained_model
+
+# =============== VOICE ASSISTANT ===============
+voice_assistant:
+  id: voice_asst
+  microphone: external_mic
+  speaker: external_speaker
+  noise_suppression_level: 2
+  auto_gain: 25dBFS
+  volume_multiplier: 0.85
+  use_wake_word: true
+  on_listening:
+    - if:
+        condition: media_player.is_playing
+        then: media_player.pause
+    - light.turn_on:
+        id: led_ring
+        blue: 100%
+        red: 0%
+        green: 0%
+        brightness: 100%
+        effect: wakeword
+    - microphone.unmute: external_mic  # 🎯 Включаем микрофон обратно
+
+  on_tts_start:
+    - microphone.mute: external_mic  # 🎯 Отключаем микрофон
+    - delay: 200ms
+    - light.turn_on:
+        id: led_ring
+        blue: 100%
+        red: 0%
+        green: 50%
+        brightness: 100%
+        effect: pulse
+  on_tts_end:
+    - delay: 200ms
+    - wait_until:
+        not:
+          speaker.is_playing:
+            id: external_speaker
+    - microphone.unmute: external_mic
+  on_end:
+    - micro_wake_word.start  # Возобновляем после завершения
+    - script.execute: reset_led
+    #- media_player.play # Убрал для теста
+  on_error:
+    - voice_assistant.stop
+    - light.turn_on:
+        id: led_ring
+        blue: 0%
+        red: 100%
+        green: 0%
+        brightness: 100%
+        effect: none
+    - delay: 600ms
+    #- media_player.play  # Убрал для теста
+    - microphone.unmute: external_mic  # 🎯 Включаем микрофон обратно
+    - script.execute: reset_led
+  on_start:
+    - delay: 0.5s
+    - micro_wake_word.stop  # Останавливаем локальное wake word
+
+# =============== SCRIPTS ===============
+script:
+  - id: reset_led
+    then:
+      - if:
+          condition:
+            - switch.is_on: use_wake_word
+            - switch.is_on: use_listen_light
+            - switch.is_off: night_mode
+          then:
+            - light.turn_on:
+                id: led_ring
+                blue: 100%
+                red: 0%
+                green: 0%
+                brightness: 80%
+                effect: none
+          else:
+            - if:
+                condition:
+                  - switch.is_on: use_wake_word
+                  - switch.is_on: use_listen_light
+                  - switch.is_on: night_mode
+                then:
+                  - light.turn_on:
+                      id: led_ring
+                      blue: 100%
+                      red: 0%
+                      green: 0%
+                      brightness: 30%
+                      effect: none
+                else:
+                  - light.turn_off: led_ring
+
+
+# =============== SWITCHES ===============
+switch:
+  - platform: template
+    name: Use wake word
+    id: use_wake_word
+    optimistic: true
+    assumed_state: false
+    restore_mode: RESTORE_DEFAULT_ON
+    entity_category: config
+    on_turn_on:
+      - micro_wake_word.start
+      - script.execute: reset_led
+    on_turn_off:
+      - voice_assistant.stop
+      - script.execute: reset_led
+
+  - platform: template
+    name: Use Listen Light
+    id: use_listen_light
+    optimistic: true
+    restore_mode: RESTORE_DEFAULT_ON
+    entity_category: config
+
+  - platform: template
+    name: Night Mode Switch
+    id: night_mode
+    optimistic: true
+    restore_mode: RESTORE_DEFAULT_ON
+    entity_category: config
+    on_turn_on:
+      - script.execute: reset_led
+    on_turn_off:
+      - script.execute: reset_led
+
+  - platform: template
+    name: Amp AMP
+    id: amp_mode
+    optimistic: true
+    restore_mode: RESTORE_DEFAULT_ON
+    entity_category: config
+    on_turn_on:
+      - output.turn_on: pa_ctrl
+    on_turn_off:
+      - output.turn_off: pa_ctrl
+
+# =============== LIGHT ===============
+light:
+  - platform: esp32_rmt_led_strip
+    id: led_ring
+    name: "${friendly_name} Light"
+    pin: GPIO19
+    num_leds: 12
+    rgb_order: GRB
+    chipset: ws2812
+    default_transition_length: 0s
+    effects:
+      - pulse:
+          name: "Pulse"
+          transition_length: 0.5s
+          update_interval: 0.5s
+      - addressable_twinkle:
+          name: "Working"
+          twinkle_probability: 5%
+          progress_interval: 4ms
+      - addressable_color_wipe:
+          name: "Wakeword"
+          colors:
+            - red: 0%
+              green: 50%
+              blue: 0%
+              num_leds: 12
+          add_led_interval: 40ms
+          reverse: false
+      - addressable_color_wipe:
+          name: "Power"
+          colors:
+            - red: 100%
+              green: 0%
+              blue: 0%
+              num_leds: 12
+          add_led_interval: 50ms
+          reverse: false
+
+# =============== BINARY SENSORS ===============
+binary_sensor:
+  - platform: template
+    name: "${friendly_name} Volume Up"
+    id: btn_volume_up
+  - platform: template
+    name: "${friendly_name} Volume Down"
+    id: btn_volume_down
+  - platform: template
+    name: "${friendly_name} Set"
+    id: btn_set
+  - platform: template
+    name: "${friendly_name} Play"
+    id: btn_play
+  - platform: template
+    name: "${friendly_name} Mode"
+    id: btn_mode
+  - platform: template
+    name: "${friendly_name} Record"
+    id: btn_record
+    on_press:
+      - voice_assistant.start
+      - light.turn_on:
+          id: led_ring
+          brightness: 100%
+          effect: "Wakeword"
+    on_release:
+      - voice_assistant.stop
+      - light.turn_off:
+          id: led_ring
+
+  - platform: template
+    id: media_playing
+    lambda: |-
+      return id(speaker_media_player_id).state == media_player::MEDIA_PLAYER_STATE_PLAYING;
+    internal: true
+
+# =============== SENSOR ===============
+sensor:
+  - id: button_adc
+    platform: adc
+    internal: true
+    pin: 8
+    attenuation: 12db
+    update_interval: 15ms
+    filters:
+      - median:
+          window_size: 5
+          send_every: 5
+          send_first_at: 1
+      - delta: 0.1
+    on_value_range:
+      - below: 0.55
+        then:
+          - binary_sensor.template.publish:
+              id: btn_volume_up
+              state: ON
+      - above: 0.65
+        below: 0.92
+        then:
+          - binary_sensor.template.publish:
+              id: btn_volume_down
+              state: ON
+      - above: 1.02
+        below: 1.33
+        then:
+          - binary_sensor.template.publish:
+              id: btn_set
+              state: ON
+      - above: 1.43
+        below: 1.77
+        then:
+          - binary_sensor.template.publish:
+              id: btn_play
+              state: ON
+      - above: 1.87
+        below: 2.15
+        then:
+          - binary_sensor.template.publish:
+              id: btn_mode
+              state: ON
+      - above: 2.25
+        below: 2.56
+        then:
+          - binary_sensor.template.publish:
+              id: btn_record
+              state: ON
+      - above: 2.8
+        then:
+          - binary_sensor.template.publish:
+              id: btn_volume_up
+              state: OFF
+          - binary_sensor.template.publish:
+              id: btn_volume_down
+              state: OFF
+          - binary_sensor.template.publish:
+              id: btn_set
+              state: OFF
+          - binary_sensor.template.publish:
+              id: btn_play
+              state: OFF
+          - binary_sensor.template.publish:
+              id: btn_mode
+              state: OFF
+          - binary_sensor.template.publish:
+              id: btn_record
+              state: OFF
+
+  - platform: template
+    name: "${friendly_name} Free Heap"
+    lambda: |-
+      #include <esp_heap_caps.h>
+      return heap_caps_get_free_size(MALLOC_CAP_8BIT) / 1024.0;
+    unit_of_measurement: "kB"
+    update_interval: 10s
+
+  - platform: template
+    name: "${friendly_name} Free PSRAM"
+    lambda: |-
+      #include <esp_heap_caps.h>
+      return heap_caps_get_free_size(MALLOC_CAP_SPIRAM) / 1024.0;
+    unit_of_measurement: "kB"
+    update_interval: 10s
+
+# =============== SELECT ===============
+select:
+  - platform: template
+    entity_category: config
+    name: Wake word engine location
+    id: wake_word_engine_location
+    optimistic: true
+    restore_value: false
+    options:
+      - In Home Assistant
+      - On device
+    initial_option: On device
+    on_value:
+      - if:
+          condition:
+            lambda: return x == "In Home Assistant";
+          then:
+            - micro_wake_word.stop 
+            - delay: 500ms
+            - lambda: |-
+                id(voice_asst).set_use_wake_word(true);
+            - voice_assistant.start_continuous
+      - if:
+          condition:
+            lambda: return x == "On device";
+          then:
+            - lambda: |-
+                id(voice_asst).set_use_wake_word(false);
+            - micro_wake_word.start
+            - delay: 500ms
+            - voice_assistant.stop
+    
+

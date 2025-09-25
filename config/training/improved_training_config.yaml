@@ -1,0 +1,71 @@
+audio:
+  hop_size_ms: 10
+  log_mel: true
+  mel_bins: 40
+  mel_lower_edge_hertz: 80
+  mel_upper_edge_hertz: 7600
+  sample_rate: 16000
+  window_size_ms: 30
+augmentation:
+  freq_mask_num: 2
+  freq_mask_param: 8
+  spec_augment: true
+  time_mask_num: 2
+  time_mask_param: 10
+data:
+  background_data_dir: /home/microWakeWord_data/background
+  negative_data_dir: /home/microWakeWord_data/negatives_final
+  positive_data_dir: /home/microWakeWord_data/positives_final
+  test_split: 0.1
+  train_split: 0.8
+  val_split: 0.1
+model:
+  architecture: mixednet
+  first_conv_filters: 32
+  first_conv_kernel_size: 3
+  mixconv_kernel_sizes:
+  - - 5
+  - - 9
+  - - 13
+  - - 21
+  pointwise_filters:
+  - 48
+  - 48
+  - 48
+  - 48
+  repeat_in_block:
+  - 1
+  - 1
+  - 1
+  - 1
+  residual_connection:
+  - 0
+  - 0
+  - 0
+  - 0
+  stride: 1
+output:
+  model_dir: improved_trained_models
+  model_name: improved_wake_word_model
+quantization:
+  enable_quantization: true
+  quantization_type: int8
+streaming:
+  feature_step_size: 10
+  ring_buffer_size_in_time_dim:
+  - 2
+  - 4
+  - 8
+  - 12
+  - 20
+  - 147
+  sliding_window_size: 5
+training:
+  batch_size: 32
+  early_stopping_patience: 10
+  epochs: 100
+  learning_rate: 0.001
+  negative_class_weight: 3.0
+  reduce_lr_factor: 0.5
+  reduce_lr_patience: 5
+  use_weights: best_weights

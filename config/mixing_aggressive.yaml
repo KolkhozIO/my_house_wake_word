@@ -1,0 +1,32 @@
+# Конфигурация агрессивного смешивания TTS с шумом
+variant: aggressive
+name: "Агрессивный"
+description: "Значительное добавление шума для максимальной реалистичности"
+
+parameters:
+  noise_ratio: 0.2         # 20% шума, 80% TTS
+  snr_range: [10, 20]      # низкий SNR (10-20 dB)
+  random_seed: 42
+  preserve_duration: true
+  normalize_output: true
+
+sources:
+  positives:
+    input: "/home/microWakeWord_data/positives_final/"
+    output: "/home/microWakeWord_data/positives_with_noise_aggressive/"
+  negatives:
+    input: "/home/microWakeWord_data/negatives_both/"
+    output: "/home/microWakeWord_data/negatives_with_noise_aggressive/"
+  hard_negatives:
+    input: "/home/microWakeWord_data/hard_negatives/"
+    output: "/home/microWakeWord_data/hard_negatives_with_noise_aggressive/"
+  hard_negatives_parallel:
+    input: "/home/microWakeWord_data/hard_negatives_parallel/"
+    output: "/home/microWakeWord_data/hard_negatives_parallel_with_noise_aggressive/"
+
+noise_source: "/home/microWakeWord_data/negatives_real/"
+
+expected_results:
+  quality: "Высокая реалистичность с заметным шумом"
+  use_case: "Для шумных условий и сложных случаев"
+  trade_off: "Может снизить точность на чистых данных"

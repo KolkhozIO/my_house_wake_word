@@ -1,0 +1,23 @@
+# Конфигурация большой модели
+model:
+  name: "microWakeWord Large"
+  size: "large"
+  target_size_kb: 300
+  
+  architecture:
+    type: "MixedNet"
+    layers: 7
+    hidden_units: 256
+    
+  training:
+    epochs: 150
+    batch_size: 64
+    learning_rate: 0.0005
+    
+  quantization:
+    enabled: true
+    type: "int8"
+    
+  deployment:
+    target_device: "ESP32S3"
+    tensor_arena_size: 4000000

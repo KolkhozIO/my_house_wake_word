@@ -1,0 +1,18 @@
+{
+  "type": "micro",
+  "version": 2,
+  "wake_word": "мой дом / любимый дом",
+  "author": "KolkhozIO",
+  "website": "https://github.com/KolkhozIO/my_house_wake_word",
+  "model": "compatible_model.tflite",
+  "trained_languages": [
+    "ru"
+  ],
+  "micro": {
+    "probability_cutoff": 0.95,
+    "feature_step_size": 10,
+    "sliding_window_size": 5,
+    "tensor_arena_size": 1000000,
+    "minimum_esphome_version": "2024.7.0"
+  }
+}

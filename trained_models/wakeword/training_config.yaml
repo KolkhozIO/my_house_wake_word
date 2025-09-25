@@ -1,0 +1,101 @@
+batch_size: 128
+clip_duration_ms: 2000
+eval_step_interval: 500
+features:
+- features_dir: /home/microWakeWord_data/generated_features_background
+  penalty_weight: 1.0
+  sampling_weight: 1.0
+  truncation_strategy: random
+  truth: false
+  type: mmap
+- features_dir: /home/microWakeWord_data/generated_features_hard_negatives
+  penalty_weight: 1.0
+  sampling_weight: 1.0
+  truncation_strategy: random
+  truth: false
+  type: mmap
+- features_dir: /home/microWakeWord_data/generated_features_hard_negatives_parallel
+  penalty_weight: 1.0
+  sampling_weight: 1.0
+  truncation_strategy: random
+  truth: false
+  type: mmap
+- features_dir: /home/microWakeWord_data/generated_features_negatives_both
+  penalty_weight: 1.0
+  sampling_weight: 1.0
+  truncation_strategy: random
+  truth: false
+  type: mmap
+- features_dir: /home/microWakeWord_data/generated_features_negatives_final
+  penalty_weight: 1.0
+  sampling_weight: 1.0
+  truncation_strategy: random
+  truth: false
+  type: mmap
+- features_dir: /home/microWakeWord_data/generated_features_positives_both
+  penalty_weight: 1.0
+  sampling_weight: 1.0
+  truncation_strategy: random
+  truth: true
+  type: mmap
+- features_dir: /home/microWakeWord_data/generated_features_positives_enhanced
+  penalty_weight: 1.0
+  sampling_weight: 1.0
+  truncation_strategy: random
+  truth: true
+  type: mmap
+- features_dir: /home/microWakeWord_data/generated_features_positives_final
+  penalty_weight: 1.0
+  sampling_weight: 1.0
+  truncation_strategy: random
+  truth: true
+  type: mmap
+flags:
+  cnn1_filters: '24'
+  cnn1_kernel_sizes: '5'
+  cnn1_subspectral_groups: '4'
+  cnn2_dilation: 1,1,1
+  cnn2_filters1: 10,10,16
+  cnn2_filters2: 10,10,16
+  cnn2_kernel_sizes: 5,5,5
+  cnn2_subspectral_groups: 1,1,1
+  dropout: 0.2
+  model_name: inception
+  restore_checkpoint: 0
+  test_tf_nonstreaming: 0
+  test_tflite_nonstreaming: 0
+  test_tflite_nonstreaming_quantized: 0
+  test_tflite_streaming: 0
+  test_tflite_streaming_quantized: 0
+  train: 1
+  training_config: /home/microWakeWord_data/training_parameters.yaml
+  use_weights: best_weights
+  verbosity: 0
+freq_mask_count:
+- 2
+freq_mask_max_size:
+- 5
+learning_rates:
+- 0.001
+maximization_metric: average_viable_recall
+minimization_metric: null
+negative_class_weight:
+- 20
+positive_class_weight:
+- 1
+spectrogram_length: 226
+spectrogram_length_final_layer: 198
+stride: 1
+summaries_dir: trained_models/wakeword/logs/
+target_minimization: 0.9
+time_mask_count:
+- 2
+time_mask_max_size:
+- 10
+train_dir: trained_models/wakeword
+training_input_shape: !!python/tuple
+- 226
+- 40
+training_steps:
+- 1000
+window_step_ms: 10

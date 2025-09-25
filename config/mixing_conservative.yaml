@@ -1,0 +1,32 @@
+# Конфигурация консервативного смешивания TTS с шумом
+variant: conservative
+name: "Консервативный"
+description: "Минимальное добавление шума для сохранения качества TTS"
+
+parameters:
+  noise_ratio: 0.05        # 5% шума, 95% TTS
+  snr_range: [20, 30]      # высокий SNR (20-30 dB)
+  random_seed: 42
+  preserve_duration: true
+  normalize_output: true
+
+sources:
+  positives:
+    input: "/home/microWakeWord_data/positives_raw/"
+    output: "/home/microWakeWord_data/positives_with_noise_conservative/"
+  negatives:
+    input: "/home/microWakeWord_data/negatives_tts/"
+    output: "/home/microWakeWord_data/negatives_with_noise_conservative/"
+  hard_negatives:
+    input: "/home/microWakeWord_data/hard_negatives/"
+    output: "/home/microWakeWord_data/hard_negatives_with_noise_conservative/"
+  negatives_tts:
+    input: "/home/microWakeWord_data/negatives_tts/"
+    output: "/home/microWakeWord_data/negatives_tts_with_noise_conservative/"
+
+noise_source: "/home/microWakeWord_data/noise_raw/"
+
+expected_results:
+  quality: "Высокое качество TTS с минимальным шумом"
+  use_case: "Для случаев где важна четкость распознавания"
+  trade_off: "Может не решить проблему переобучения полностью"

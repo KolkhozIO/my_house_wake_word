@@ -1,0 +1,86 @@
+audio:
+  clip_duration_ms: 1000
+  max_clip_duration_s: 1.0
+  random_split_seed: 10
+  remove_silence: false
+  sample_rate: 16000
+  slide_frames: 1
+  split_count: 0.1
+  split_spectrogram_duration_s: null
+  step_ms: 4.42
+  window_step_ms: 4.42
+augmentation:
+  freq_mask_count: 2
+  freq_mask_max_size: 5
+  noise_level: 0.01
+  pitch_range:
+  - -1
+  - 1
+  tempo_range:
+  - 0.9
+  - 1.1
+  time_mask_count: 2
+  time_mask_max_size: 10
+  volume_range:
+  - 0.8
+  - 1.2
+model:
+  batch_size: 128
+  eval_step_interval: 500
+  input_shape:
+  - 226
+  - 40
+  learning_rate: 0.001
+  maximization_metric: average_viable_recall
+  minimization_metric: null
+  name: inception
+  negative_class_weight: 20
+  positive_class_weight: 1
+  target_minimization: 0.9
+  training_steps:
+  - 10000
+paths:
+  data_root: /home/microWakeWord_data
+  generated:
+    background: /home/microWakeWord_data/generated_features_background
+    hard_negatives: /home/microWakeWord_data/generated_features_hard_negatives
+    hard_negatives_parallel: /home/microWakeWord_data/generated_features_hard_negatives_parallel
+    negatives_both: /home/microWakeWord_data/generated_features_negatives_both
+    negatives_final: /home/microWakeWord_data/generated_features_negatives_final
+    positives_both: /home/microWakeWord_data/generated_features_positives_both
+    positives_enhanced: /home/microWakeWord_data/generated_features_positives_enhanced
+    positives_final: /home/microWakeWord_data/generated_features_positives_final
+  logs_root: /home/microWakeWord/logs
+  models_root: /home/microWakeWord/trained_models
+  sources:
+    background_data: /home/microWakeWord_data/background_data
+    hard_negatives: /home/microWakeWord_data/hard_negatives
+    negatives_real: /home/microWakeWord_data/negatives_real
+    positives_enhanced: /home/microWakeWord_data/positives_enhanced
+    positives_final: /home/microWakeWord_data/positives_final
+performance:
+  chunk_size: 50
+  max_memory_gb: 8
+  max_workers: 72
+  optimize_for_inference: true
+  timeout_seconds: 3600
+  use_gpu: false
+validation:
+  ambient_test_samples: 500
+  check_data_model_compatibility: true
+  check_file_existence: true
+  check_parameter_sync: true
+  false_positive_threshold: 0.05
+  max_loss: 1.0
+  min_accuracy: 0.95
+  min_recall: 0.9
+version:
+  compatibility:
+    min_python_version: '3.8'
+    required_packages:
+    - tensorflow>=2.10
+    - numpy>=1.21
+    - librosa>=0.9
+  config_version: 2.0.0
+  last_updated: '2025-09-21'
+  pipeline_version: 2.0.0

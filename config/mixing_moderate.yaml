@@ -1,0 +1,32 @@
+# Конфигурация умеренного смешивания TTS с шумом
+variant: moderate
+name: "Умеренный"
+description: "Сбалансированное добавление шума для реалистичности"
+
+parameters:
+  noise_ratio: 0.1         # 10% шума, 90% TTS
+  snr_range: [15, 25]      # средний SNR (15-25 dB)
+  random_seed: 42
+  preserve_duration: true
+  normalize_output: true
+
+sources:
+  positives:
+    input: "/home/microWakeWord_data/positives_final/"
+    output: "/home/microWakeWord_data/positives_with_noise_moderate/"
+  negatives:
+    input: "/home/microWakeWord_data/negatives_both/"
+    output: "/home/microWakeWord_data/negatives_with_noise_moderate/"
+  hard_negatives:
+    input: "/home/microWakeWord_data/hard_negatives/"
+    output: "/home/microWakeWord_data/hard_negatives_with_noise_moderate/"
+  hard_negatives_parallel:
+    input: "/home/microWakeWord_data/hard_negatives_parallel/"
+    output: "/home/microWakeWord_data/hard_negatives_parallel_with_noise_moderate/"
+
+noise_source: "/home/microWakeWord_data/negatives_real/"
+
+expected_results:
+  quality: "Хороший баланс качества и реалистичности"
+  use_case: "Рекомендуемый вариант для большинства случаев"
+  trade_off: "Оптимальное соотношение качества и обобщения"

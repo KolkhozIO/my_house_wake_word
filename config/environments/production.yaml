@@ -1,0 +1,26 @@
+# Настройки для продакшна
+environment: "production"
+
+# Переопределения для продакшна
+pipeline:
+  data_generation:
+    quick_mode: false
+    tts_enabled: true
+    parallel_workers: 72
+    
+  training:
+    epochs: 100
+    batch_size: 32
+    
+system:
+  logging:
+    level: "INFO"
+    
+  monitoring:
+    enabled: true
+    metrics_interval: 5
+    health_check_interval: 15
+    
+  performance:
+    max_workers: 72
+    memory_limit_gb: 32
